@@ -1,0 +1,679 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ColorSense Weather</title>
+<style>
+  :root{--spring:#FF9DB6; --summer:#FF6B4A; --autumn:#E8842B; --winter:#6FA8E8;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; margin:0;}
+  html,body{height:100%;}
+  body{
+    font-family:"Helvetica Neue","Apple SD Gothic Neo",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    background:radial-gradient(1100px 620px at 50% -8%, #232a38 0%, transparent 55%), #14181f;
+    color:#fff; min-height:100%;
+    display:flex; flex-direction:column; align-items:center; gap:20px; padding:32px 16px 54px;
+  }
+  .pagehead{max-width:440px; text-align:center; color:#c5cdda;}
+  .pagehead h1{font-size:18px; font-weight:400; letter-spacing:3px; color:#fff; margin-bottom:7px;}
+  .pagehead p{font-size:12.5px; line-height:1.7; color:#8b96ab; font-weight:400;}
+
+  .phone{
+    width:360px; max-width:100%; height:760px; flex-shrink:0;
+    border-radius:50px; padding:12px;
+    background:linear-gradient(160deg,#20252f,#0b0e13);
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.8), 0 0 0 2px rgba(255,255,255,.04) inset;
+  }
+  .screen{position:relative; width:100%; height:100%; border-radius:40px; overflow:hidden; background:#333; touch-action:none;}
+  .sky{position:absolute; inset:0; transition:background 1.2s ease;}
+  .fx{position:absolute; inset:0; overflow:hidden; pointer-events:none;}
+  .grain{position:absolute; inset:0; opacity:.05; pointer-events:none;
+    background-image:radial-gradient(rgba(255,255,255,.9) 0.5px, transparent 0.6px); background-size:3px 3px;}
+
+  .content{position:absolute; inset:0; z-index:5; display:flex; flex-direction:column; padding:56px 30px 70px; color:#fff;}
+  .detail{display:flex; flex-direction:column;}
+  .detail .time,.detail .date,.detail .cond{font-size:14px; letter-spacing:3px; font-weight:300; opacity:.95;}
+  .detail .date,.detail .cond{margin-top:3px;}
+  .detail .cond{display:flex; align-items:center; gap:8px;}
+  .detail .cond svg{width:20px; height:20px; flex-shrink:0;}
+  .detail .temp{font-size:78px; font-weight:100; line-height:1; margin-top:16px; text-shadow:0 2px 24px rgba(0,0,0,.14);}
+  .spacer{flex:1;}
+
+  .arc{width:100%; margin-bottom:14px;}
+  .arc svg{width:100%; height:auto; display:block; overflow:visible;}
+
+  .city{text-align:center; margin-bottom:0;}
+  .city .n1,.city .n2{font-size:19px; letter-spacing:6px; font-weight:200; line-height:1.5;}
+  .city .code{font-size:9px; letter-spacing:3px; font-weight:300; opacity:.55; margin-top:9px;}
+
+  /* swipe handle */
+  .handle{position:absolute; left:0; right:0; bottom:15px; z-index:6; display:flex; flex-direction:column;
+    align-items:center; gap:7px; cursor:pointer; user-select:none;}
+  .handle .grip{width:38px; height:4px; border-radius:3px; background:rgba(255,255,255,.55);}
+  .handle .hl{font-size:9.5px; letter-spacing:2.5px; font-weight:400; opacity:.7; text-transform:uppercase;}
+
+  /* detail sheet */
+  .sheet{position:absolute; left:0; right:0; bottom:0; height:78%; z-index:12;
+    background:rgba(28,32,42,.22); backdrop-filter:blur(30px) saturate(1.25); -webkit-backdrop-filter:blur(30px) saturate(1.25);
+    border-top:1px solid rgba(255,255,255,.22); border-radius:30px 30px 40px 40px; text-shadow:0 1px 8px rgba(0,0,0,.28);
+    transform:translateY(102%); transition:transform .42s cubic-bezier(.22,.9,.25,1);
+    display:flex; flex-direction:column; padding:12px 24px 24px; overflow:hidden;}
+  .sheet.open{transform:translateY(0);}
+  .sheet .shandle{width:40px; height:4px; border-radius:3px; background:rgba(255,255,255,.4);
+    margin:2px auto 16px; cursor:pointer; flex-shrink:0;}
+  .sheet .stitle{font-size:11px; letter-spacing:3px; opacity:.6; text-transform:uppercase; margin-bottom:12px; font-weight:400;}
+  .metrics{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; flex-shrink:0;}
+  .tile{background:rgba(255,255,255,.13); border:1px solid rgba(255,255,255,.2); border-radius:16px; padding:13px 15px;}
+  .tile .tl{font-size:10.5px; letter-spacing:2px; opacity:.65; text-transform:uppercase; display:flex; align-items:center; gap:7px;}
+  .tile .tl svg{width:14px; height:14px;}
+  .tile .tv{font-size:21px; font-weight:200; letter-spacing:.5px; margin-top:7px;}
+  .tile .tv small{font-size:12px; opacity:.6; letter-spacing:1px;}
+
+  .dlist{overflow-y:auto; flex:1; margin:0 -4px; padding:0 4px;}
+  .drow{display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid rgba(255,255,255,.08);}
+  .drow:last-child{border-bottom:none;}
+  .drow .dw{width:40px; font-size:13px; letter-spacing:1.5px; font-weight:400;}
+  .drow .di{width:22px; height:22px; opacity:.92;} .drow .di svg{width:100%;height:100%;}
+  .drow .dp{width:36px; font-size:10.5px; letter-spacing:.5px; opacity:.65; text-align:center;}
+  .drow .dlo{width:28px; text-align:right; font-size:13px; opacity:.6; font-weight:300;}
+  .drow .track{flex:1; height:5px; border-radius:999px; background:rgba(255,255,255,.14); position:relative;}
+  .drow .fill{position:absolute; height:100%; border-radius:999px;}
+  .drow .dhi{width:28px; font-size:13px; font-weight:500;}
+
+  .stat{position:absolute; inset:0; z-index:8; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    gap:16px; text-align:center; padding:30px; background:rgba(10,14,20,.25); opacity:0; pointer-events:none; transition:opacity .3s;}
+  .stat.on{opacity:1; pointer-events:auto;}
+  .stat .ring{width:34px; height:34px; border:2px solid rgba(255,255,255,.25); border-top-color:#fff; border-radius:50%; animation:spin 1s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .stat .msg{font-size:12px; letter-spacing:3px; font-weight:300; text-transform:uppercase; opacity:.9;}
+  .stat .retry{background:none; border:1px solid rgba(255,255,255,.4); color:#fff; font-family:inherit; font-size:11px;
+    letter-spacing:2px; padding:9px 18px; border-radius:999px; cursor:pointer; text-transform:uppercase; display:none;}
+  .stat.err .ring{display:none;} .stat.err .retry{display:inline-block;}
+
+  .drop{position:absolute; width:1.5px; height:15px; background:linear-gradient(rgba(255,255,255,0),rgba(255,255,255,.55));
+    border-radius:2px; animation:fall linear infinite;}
+  @keyframes fall{from{transform:translateY(-40px)} to{transform:translateY(820px)}}
+  .flake{position:absolute; background:#fff; border-radius:50%; animation:snow linear infinite;}
+  @keyframes snow{from{transform:translateY(-30px) translateX(0)} to{transform:translateY(820px) translateX(26px)}}
+  .star{position:absolute; background:#fff; border-radius:50%; box-shadow:0 0 3px rgba(255,255,255,.6); animation:tw 3.2s ease-in-out infinite;}
+  @keyframes tw{0%,100%{opacity:.15} 50%{opacity:.95}}
+  .sunglow{position:absolute; left:50%; transform:translateX(-50%); border-radius:50%; filter:blur(12px); pointer-events:none; animation:breathe 7s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{opacity:.7; transform:translateX(-50%) scale(1)} 50%{opacity:1; transform:translateX(-50%) scale(1.08)}}
+  .cloudband{position:absolute; border-radius:50%; filter:blur(9px); pointer-events:none; animation:drift2 linear infinite;}
+  @keyframes drift2{from{transform:translateX(-45%)} to{transform:translateX(145%)}}
+  .veil{position:absolute; inset:0; pointer-events:none; animation:haze 7s ease-in-out infinite;
+    background:linear-gradient(180deg, rgba(255,255,255,0) 18%, rgba(228,230,235,.3) 55%, rgba(255,255,255,0) 92%);}
+  @keyframes haze{0%,100%{opacity:.55} 50%{opacity:.92}}
+  .bolt{position:absolute; inset:0; pointer-events:none; opacity:0;
+    background:radial-gradient(circle at 50% 26%, rgba(255,255,255,.9), rgba(255,255,255,0) 55%); animation:flash 7s linear infinite;}
+  @keyframes flash{0%,90%,100%{opacity:0} 91%{opacity:.85} 92%{opacity:.12} 93%{opacity:.6} 94%{opacity:0}}
+  .dustveil{position:absolute; inset:0; pointer-events:none; animation:haze 8s ease-in-out infinite;
+    background:linear-gradient(180deg, rgba(196,158,96,.28) 0%, rgba(200,166,110,.18) 45%, rgba(210,180,130,.28) 100%);}
+  .mote{position:absolute; left:-6%; background:rgba(214,186,132,.9); border-radius:50%; pointer-events:none; animation:mote linear infinite;}
+  @keyframes mote{from{transform:translateX(0)} to{transform:translateX(380px)}}
+
+  .hint{max-width:440px; text-align:center; font-size:11.5px; color:#8b96ab; line-height:1.8; letter-spacing:.3px;}
+  .hint b{color:#c5cdda; font-weight:500;}
+  /* settings gear + panel */
+  .gear{position:absolute; top:20px; right:20px; z-index:6; width:34px; height:34px; display:flex; align-items:center;
+    justify-content:center; cursor:pointer; border-radius:50%; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22);}
+  .gear svg{width:18px; height:18px;}
+  .settings{position:absolute; inset:0; z-index:14; color:#fff; overflow-y:auto; padding:50px 26px 26px;
+    background:rgba(24,28,38,.28); backdrop-filter:blur(32px) saturate(1.2); -webkit-backdrop-filter:blur(32px) saturate(1.2);
+    transform:translateY(-102%); transition:transform .4s cubic-bezier(.22,.9,.25,1); text-shadow:0 1px 8px rgba(0,0,0,.28);}
+  .settings.open{transform:translateY(0);}
+  .sethead{display:flex; justify-content:space-between; align-items:center; margin-bottom:26px;}
+  .sethead .stt{font-size:13px; letter-spacing:3px; font-weight:400; opacity:.92;}
+  .sethead .x{background:none; border:none; color:#fff; font-size:26px; font-weight:200; cursor:pointer; line-height:1;}
+  .slabel{font-size:12px; letter-spacing:2.5px; font-weight:500; margin-bottom:6px;}
+  .sdesc{font-size:11.5px; letter-spacing:.4px; opacity:.72; line-height:1.6; margin-bottom:15px;}
+  .tbtn{width:100%; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.3); color:#fff; font-family:inherit;
+    font-size:13px; letter-spacing:2px; padding:15px; border-radius:14px; cursor:pointer; text-transform:uppercase; transition:.2s;}
+  .tbtn.on{background:#fff; color:#12161f; font-weight:600; border-color:#fff;}
+  .ctpanel{display:flex; flex-direction:column; gap:18px; margin-top:20px;}
+  .ctpanel[hidden]{display:none;}
+  .ctpanel .row{display:flex; justify-content:space-between; font-size:12px; letter-spacing:2px; opacity:.92; margin-bottom:9px;}
+  .ctpanel input[type=range]{width:100%; accent-color:#fff; height:4px;}
+  .cl{font-size:10.5px; letter-spacing:2px; opacity:.62; margin-bottom:9px; text-transform:uppercase;}
+  .chips{display:flex; gap:8px; flex-wrap:wrap;}
+  .chips button{background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.22); color:rgba(255,255,255,.72);
+    font-family:inherit; font-size:12px; letter-spacing:1.5px; padding:9px 15px; border-radius:999px; cursor:pointer; transition:.2s;}
+  .chips button.on{background:#fff; color:#12161f; border-color:#fff;}
+  .livebtn{margin-top:4px; background:none; border:1px solid rgba(255,255,255,.4); color:#fff; font-family:inherit;
+    font-size:12px; letter-spacing:2px; padding:13px; border-radius:12px; cursor:pointer; text-transform:uppercase;}
+
+  @media(max-width:400px){ body{padding:14px 8px 34px;} .phone{height:94vh; max-height:760px; border-radius:42px;} }
+</style>
+</head>
+<body>
+
+  <div class="pagehead">
+    <h1>COLORSENSE</h1>
+    <p id="pageDesc">실제 위치·날씨·시간을 <b>색으로</b> 보여주는 날씨 앱. 아래에서 <b>위로 쓸어 올리면</b> 상세 정보가 나옵니다.</p>
+  </div>
+
+  <div class="phone">
+    <div class="screen" id="screen">
+      <div class="sky" id="sky"></div>
+      <div class="fx" id="fx"></div>
+      <div class="grain"></div>
+
+      <div class="content">
+        <div class="detail">
+          <div class="time" id="time">— : —</div>
+          <div class="date" id="date">—</div>
+          <div class="cond" id="cond">LOADING</div>
+          <div class="temp" id="temp">—°</div>
+        </div>
+        <div class="spacer"></div>
+        <div class="arc" id="arc"></div>
+        <div class="city">
+          <div class="n1" id="n1">—</div>
+          <div class="n2" id="n2"></div>
+          <div class="code" id="code"></div>
+        </div>
+      </div>
+
+      <div class="gear" id="gear" title="설정">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="3.2"/>
+          <path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1" stroke-linecap="round"/></svg>
+      </div>
+
+      <div class="handle" id="handle">
+        <div class="hl" id="handleLbl">날씨 상세 ⌃</div>
+        <div class="grip"></div>
+      </div>
+
+      <div class="settings" id="settings">
+        <div class="sethead"><div class="stt" data-i18n="settings">설정</div><button class="x" id="closeSet">×</button></div>
+        <div class="slabel" data-i18n="colorTest">컬러 테스트</div>
+        <div class="sdesc" data-i18n="colorTestDesc">기획한 계절·날씨·온도 조합의 배경색을 직접 확인합니다.</div>
+        <button class="tbtn" id="ctToggle">컬러 테스트 켜기</button>
+        <div class="ctpanel" id="ctpanel" hidden>
+          <div>
+            <div class="row"><span data-i18n="lblTemp">온도</span><span id="ctTempVal">20°</span></div>
+            <input type="range" id="ctTemp" min="-10" max="38" value="20">
+          </div>
+          <div><div class="cl" data-i18n="lblWeather">날씨</div><div class="chips" id="ctCond">
+            <button data-c="clear" class="on">맑음</button><button data-c="pcloudy">부분 흐림</button><button data-c="overcast">흐림</button><button data-c="rain">비</button><button data-c="showers">소나기</button><button data-c="snow">눈</button><button data-c="sleet">진눈깨비</button><button data-c="fog">안개</button><button data-c="storm">뇌우</button><button data-c="finedust">미세먼지</button><button data-c="yellowdust">황사</button></div></div>
+          <div><div class="cl" data-i18n="lblSeason">계절</div><div class="chips" id="ctSeason">
+            <button data-s="spring">봄</button><button data-s="summer" class="on">여름</button><button data-s="autumn">가을</button><button data-s="winter">겨울</button></div></div>
+          <div><div class="cl" data-i18n="lblTime">시간대</div><div class="chips" id="ctDay">
+            <button data-d="day" class="on">주간</button><button data-d="night">야간</button></div></div>
+          <button class="livebtn" id="ctLive" data-i18n="returnLive">실시간 데이터로 복귀</button>
+        </div>
+        <div class="slabel" data-i18n="language" style="margin-top:28px;">언어</div>
+        <div class="chips" id="langSel">
+          <button data-l="ko">한국어</button><button data-l="en">English</button>
+        </div>
+      </div>
+
+      <div class="sheet" id="sheet">
+        <div class="shandle" id="shandle"></div>
+        <div class="stitle" data-i18n="sheetInfo">상세 정보</div>
+        <div class="metrics">
+          <div class="tile"><div class="tl" data-i18n="wind">바람</div><div class="tv" id="mWind">—</div></div>
+          <div class="tile"><div class="tl" data-i18n="hum">습도</div><div class="tv" id="mHum">—</div></div>
+          <div class="tile"><div class="tl" data-i18n="pop">강수확률</div><div class="tv" id="mPop">—</div></div>
+          <div class="tile"><div class="tl" data-i18n="wave">파도</div><div class="tv" id="mWave">—</div></div>
+        </div>
+        <div class="stitle" data-i18n="sheetWeek">주간 예보</div>
+        <div class="dlist" id="dlist"></div>
+      </div>
+
+      <div class="stat" id="stat">
+        <div class="ring"></div>
+        <div class="msg" id="statMsg">LOCATING…</div>
+        <button class="retry" id="retryBtn" data-i18n="retry">다시 시도</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="hint" id="hint">
+    <b>동작 방식</b> — 위치를 허용하면 GPS로, 아니면 IP 기반으로 위치를 잡아 실시간 날씨를 불러옵니다.<br>
+    화면 아래를 <b>위로 쓸어 올리면</b> 주간 예보·바람·습도·강수확률·파도를 볼 수 있어요.
+  </div>
+
+<script>
+/* ===== color engine ===== */
+const TOP=[{t:-10,c:[38,46,110]},{t:0,c:[52,72,150]},{t:10,c:[74,98,170]},
+  {t:18,c:[104,92,168]},{t:24,c:[132,84,150]},{t:30,c:[176,78,108]},{t:38,c:[205,72,70]}];
+const BOT=[{t:-10,c:[120,140,180]},{t:0,c:[150,166,196]},{t:10,c:[196,182,178]},
+  {t:18,c:[240,178,120]},{t:24,c:[255,150,78]},{t:30,c:[255,112,58]},{t:38,c:[255,74,52]}];
+const SEASON={spring:{rep:[255,157,182]},summer:{rep:[255,107,74]},autumn:{rep:[232,132,43]},winter:{rep:[111,168,232]}};
+const lerp=(a,b,r)=>a+(b-a)*r;
+function interp(s,t){t=Math.max(s[0].t,Math.min(s[s.length-1].t,t));
+  for(let i=0;i<s.length-1;i++){const a=s[i],b=s[i+1];if(t>=a.t&&t<=b.t){const r=(t-a.t)/(b.t-a.t);return[0,1,2].map(k=>lerp(a.c[k],b.c[k],r));}}
+  return s[s.length-1].c.slice();}
+const mix=(a,b,r)=>a.map((v,i)=>v+(b[i]-v)*r);
+const grey=c=>{const l=.3*c[0]+.59*c[1]+.11*c[2];return[l,l,l];};
+const rgb=c=>`rgb(${c.map(v=>Math.round(v)).join(',')})`;
+
+/* multi-stop dawn/dusk sky palettes (top→bottom), interpolated by temperature */
+const ANCHORS=[
+  {t:0,  s:[[12,20,52],[26,52,104],[58,104,158],[120,168,196],[214,206,196],[150,150,170]]},
+  {t:10, s:[[12,24,60],[26,64,120],[58,120,168],[140,186,198],[238,206,160],[206,160,120]]},
+  {t:19, s:[[12,26,66],[24,72,128],[58,132,172],[176,206,196],[246,204,140],[236,150,80]]},
+  {t:27, s:[[26,30,74],[40,78,134],[120,158,176],[240,200,150],[246,150,78],[226,104,54]]},
+  {t:36, s:[[46,34,82],[96,80,138],[200,150,150],[250,180,120],[245,120,64],[216,58,44]]}
+];
+const SKYPOS=[0,30,52,70,84,100];
+function buildStops(t){t=Math.max(0,Math.min(36,t));
+  for(let i=0;i<ANCHORS.length-1;i++){const a=ANCHORS[i],b=ANCHORS[i+1];
+    if(t>=a.t&&t<=b.t){const r=(t-a.t)/(b.t-a.t);return a.s.map((c,k)=>c.map((v,j)=>lerp(v,b.s[k][j],r)));}}
+  return (t<ANCHORS[0].t?ANCHORS[0]:ANCHORS[ANCHORS.length-1]).s.map(c=>c.slice());
+}
+
+/* ===== WMO decode + icons ===== */
+function decode(code){
+  const m={0:['clear','clear'],1:['clear','mclear'],2:['cloudy','pcloudy'],3:['cloudy','overcast'],
+    45:['fog','fog'],48:['fog','fog'],51:['rain','drizzle'],53:['rain','drizzle'],55:['rain','drizzle'],
+    56:['rain','frzdrizzle'],57:['rain','frzdrizzle'],61:['rain','rain'],63:['rain','rain'],65:['rain','hrain'],
+    66:['rain','frain'],67:['rain','frain'],71:['snow','snow'],73:['snow','snow'],75:['snow','hsnow'],
+    77:['snow','sgrains'],80:['rain','showers'],81:['rain','showers'],82:['rain','hshowers'],
+    85:['snow','ssnow'],86:['snow','ssnow'],95:['rain','tstorm'],96:['rain','tstorm'],99:['rain','tstorm']};
+  return m[code]||['cloudy','pcloudy'];
+}
+/* detailed weather composition: cloud coverage(0-3) + precipitation + fog/storm */
+function decode2(code){
+  const T={0:{sky:0},1:{sky:1},2:{sky:2},3:{sky:3},45:{sky:3,fog:1},48:{sky:3,fog:1},
+    51:{sky:3,precip:'drizzle',inten:1},53:{sky:3,precip:'drizzle',inten:2},55:{sky:3,precip:'drizzle',inten:2},
+    56:{sky:3,precip:'sleet',inten:1},57:{sky:3,precip:'sleet',inten:2},
+    61:{sky:3,precip:'rain',inten:1},63:{sky:3,precip:'rain',inten:2},65:{sky:3,precip:'rain',inten:3},
+    66:{sky:3,precip:'sleet',inten:2},67:{sky:3,precip:'sleet',inten:3},
+    71:{sky:3,precip:'snow',inten:1},73:{sky:3,precip:'snow',inten:2},75:{sky:3,precip:'snow',inten:3},77:{sky:3,precip:'snow',inten:1},
+    80:{sky:2,precip:'rain',inten:1},81:{sky:2,precip:'rain',inten:2},82:{sky:2,precip:'rain',inten:3},
+    85:{sky:2,precip:'snow',inten:2},86:{sky:2,precip:'snow',inten:3},
+    95:{sky:3,precip:'rain',inten:2,storm:1},96:{sky:3,precip:'sleet',inten:2,storm:1},99:{sky:3,precip:'sleet',inten:3,storm:1}};
+  const b=T[code]||{sky:2};
+  return {sky:b.sky||0, precip:b.precip||'none', inten:b.inten||2, fog:!!b.fog, storm:!!b.storm, dust:0};
+}
+function catOf(wx){ if(wx.precip==='snow')return'snow'; if(wx.precip==='rain'||wx.precip==='drizzle'||wx.precip==='sleet'||wx.storm)return'rain'; if(wx.fog)return'fog'; if(wx.sky>=2)return'cloudy'; return'clear'; }
+function wxLabel(wx){
+  const dd=L(); if(!wx)return'';
+  let parts=[];
+  if(wx.fog) parts=[dd.fogLabel];
+  else{
+    const skyL=dd.sky[['clear','mclear','pcloudy','overcast'][wx.sky]];
+    if(wx.storm) parts=[skyL,dd.stormLabel];
+    else if(wx.precip!=='none'){let pL=dd.precip[wx.precip]||'';
+      if(wx.inten===3)pL=dd.heavy+' '+pL; else if(wx.inten===1&&(wx.precip==='snow'||wx.precip==='rain'))pL=dd.light+' '+pL;
+      parts=[skyL,pL];
+    } else parts=[skyL];
+  }
+  if(wx.dust) parts.push(dd.dust[wx.dust]);
+  return parts.join(dd.amp);
+}
+/* header condition icon (white line), precipitation count encodes intensity */
+function condIcon(wx,isDay){
+  const st='stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+  const cloud=`<path d="M6 16.3h10a3 3 0 0 0 .3-6 4.5 4.5 0 0 0-8.7-1.1A3.3 3.3 0 0 0 6 16.3z" ${st}/>`;
+  const xs=[8.5,12,15.5];
+  const drops=n=>xs.slice(0,n).map(x=>`<line x1="${x}" y1="18.5" x2="${x-1}" y2="21.5" ${st}/>`).join('');
+  const dots=n=>xs.slice(0,n).map(x=>`<circle cx="${x}" cy="20" r=".9" fill="#fff" stroke="none"/>`).join('');
+  const flakes=n=>xs.slice(0,n).map(x=>`<circle cx="${x}" cy="20" r="1" fill="#fff" stroke="none"/>`).join('');
+  const wrap=inner=>`<svg viewBox="0 0 24 24">${inner}</svg>`;
+  if(wx.dust && wx.precip==='none' && !wx.storm && !wx.fog)
+    return wrap(`<circle cx="16.5" cy="8" r="3" ${st}/><line x1="4" y1="13.5" x2="17" y2="13.5" ${st}/><line x1="4" y1="17" x2="20" y2="17" ${st}/><line x1="6" y1="20.5" x2="18" y2="20.5" ${st}/>`);
+  if(wx.fog) return wrap(`${cloud}<line x1="6" y1="19.5" x2="15" y2="19.5" ${st}/><line x1="9" y1="22" x2="18" y2="22" ${st}/>`);
+  if(wx.storm) return wrap(`${cloud}<path d="M12 17.5l-2.2 3.4h2.6L10.6 24" ${st}/>`);
+  if(wx.precip==='rain') return wrap(cloud+drops(wx.inten));
+  if(wx.precip==='drizzle') return wrap(cloud+dots(2));
+  if(wx.precip==='sleet') return wrap(cloud+`<line x1="9" y1="18.5" x2="8" y2="21.5" ${st}/><circle cx="14.5" cy="20" r="1" fill="#fff" stroke="none"/>`);
+  if(wx.precip==='snow') return wrap(cloud+flakes(wx.inten));
+  if(wx.sky>=2) return wrap(cloud);
+  if(wx.sky===1) return wrap(`<circle cx="8.5" cy="9" r="3" ${st}/>${cloud}`);
+  if(isDay===0) return wrap(`<path d="M17 13.5A6 6 0 1 1 11 5.7 4.9 4.9 0 0 0 17 13.5z" ${st}/>`);
+  return wrap(`<circle cx="12" cy="12" r="4" ${st}/>`+[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180;return `<line x1="${(12+Math.cos(r)*6.6).toFixed(1)}" y1="${(12+Math.sin(r)*6.6).toFixed(1)}" x2="${(12+Math.cos(r)*8.8).toFixed(1)}" y2="${(12+Math.sin(r)*8.8).toFixed(1)}" ${st}/>`;}).join(''));
+}
+const SS='stroke="#fff" stroke-width="1.4" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+function wIcon(cat){
+  const cloud=`<path d="M6.5 17h9.2a3 3 0 0 0 .4-6 4.4 4.4 0 0 0-8.5-1.1A3.2 3.2 0 0 0 6.5 17z" ${SS}/>`;
+  if(cat==='clear')return `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4.3" ${SS}/>`+
+    [0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180;
+      return `<line x1="${(12+Math.cos(r)*7).toFixed(1)}" y1="${(12+Math.sin(r)*7).toFixed(1)}" x2="${(12+Math.cos(r)*9).toFixed(1)}" y2="${(12+Math.sin(r)*9).toFixed(1)}" ${SS}/>`;}).join('')+`</svg>`;
+  if(cat==='cloudy')return `<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="3.2" ${SS}/>${cloud}</svg>`;
+  if(cat==='rain')return `<svg viewBox="0 0 24 24">${cloud}<line x1="9" y1="19.5" x2="8" y2="22" ${SS}/><line x1="12.5" y1="19.5" x2="11.5" y2="22" ${SS}/><line x1="16" y1="19.5" x2="15" y2="22" ${SS}/></svg>`;
+  if(cat==='snow')return `<svg viewBox="0 0 24 24">${cloud}<circle cx="9" cy="20.6" r=".8" fill="#fff" stroke="none"/><circle cx="12.5" cy="21" r=".8" fill="#fff" stroke="none"/><circle cx="16" cy="20.6" r=".8" fill="#fff" stroke="none"/></svg>`;
+  return `<svg viewBox="0 0 24 24">${cloud}</svg>`;
+}
+
+/* ===== state ===== */
+const $=id=>document.getElementById(id);
+const MON=['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+const WD=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+const WDKO=['일','월','화','수','목','금','토'];
+let lang='ko';
+try{const sv=localStorage.getItem('cs_lang'); if(sv==='ko'||sv==='en')lang=sv;}catch(e){}
+const I18N={
+  ko:{handle:'날씨 상세', sheetInfo:'상세 정보', sheetWeek:'주간 예보',
+    wind:'바람', hum:'습도', pop:'강수확률', wave:'파도',
+    waveInland:'내륙 · 해당 없음', waveLoading:'측정 중…', today:'오늘',
+    settings:'설정', colorTest:'컬러 테스트',
+    colorTestDesc:'기획한 계절·날씨·온도 조합의 배경색을 직접 확인합니다. 값을 바꾸면 화면 색이 바로 반영돼요.',
+    ctOn:'컬러 테스트 켜기', ctRunning:'컬러 테스트 진행 중',
+    lblWeather:'날씨', lblSeason:'계절', lblTime:'시간대', lblTemp:'온도',
+    returnLive:'실시간 데이터로 복귀', language:'언어', sunLabel:'일출 · 일몰',
+    locating:'위치 확인 중', loading:'불러오는 중', err:'데이터를 불러오지 못했어요', retry:'다시 시도',
+    hint:'<b>동작 방식</b> — 위치를 허용하면 GPS로, 아니면 IP 기반으로 위치를 잡아 실시간 날씨를 불러옵니다.<br>화면 아래를 <b>위로 쓸어 올리면</b> 주간 예보·바람·습도·강수확률·파도를 볼 수 있어요.',
+    pageDesc:'실제 위치·날씨·시간을 <b>색으로</b> 보여주는 날씨 앱. 아래에서 <b>위로 쓸어 올리면</b> 상세 정보가 나옵니다.',
+    condChips:{clear:'맑음',pcloudy:'부분 흐림',overcast:'흐림',rain:'비',showers:'소나기',snow:'눈',sleet:'진눈깨비',fog:'안개',storm:'뇌우',finedust:'미세먼지',yellowdust:'황사'},
+    sky:{clear:'맑음',mclear:'대체로 맑음',pcloudy:'부분 흐림',overcast:'흐림'},
+    precip:{rain:'비',drizzle:'이슬비',snow:'눈',sleet:'진눈깨비'},
+    dust:{1:'미세먼지',2:'황사'},
+    fogLabel:'안개', stormLabel:'뇌우', heavy:'강한', light:'약한', amp:' & ',
+    seasonChips:{spring:'봄',summer:'여름',autumn:'가을',winter:'겨울'},
+    dayChips:{day:'주간',night:'야간'},
+    compass:['북','북동','동','남동','남','남서','서','북서'],
+    conds:{clear:'맑음',mclear:'대체로 맑음',pcloudy:'부분 흐림',overcast:'흐림',fog:'안개',drizzle:'이슬비',frzdrizzle:'어는 이슬비',rain:'비',hrain:'강한 비',frain:'어는 비',snow:'눈',hsnow:'많은 눈',sgrains:'싸락눈',showers:'소나기',hshowers:'강한 소나기',ssnow:'소낙눈',tstorm:'뇌우'}},
+  en:{handle:'DETAILS', sheetInfo:'DETAILS', sheetWeek:'WEEKLY',
+    wind:'WIND', hum:'HUMIDITY', pop:'RAIN', wave:'WAVES',
+    waveInland:'INLAND · N/A', waveLoading:'MEASURING…', today:'TODAY',
+    settings:'SETTINGS', colorTest:'COLOR TEST',
+    colorTestDesc:'Preview the background color for any season, weather and temperature. Changes apply instantly.',
+    ctOn:'START COLOR TEST', ctRunning:'COLOR TEST ON',
+    lblWeather:'WEATHER', lblSeason:'SEASON', lblTime:'TIME', lblTemp:'TEMP',
+    returnLive:'BACK TO LIVE', language:'LANGUAGE', sunLabel:'SUNRISE & SUNSET',
+    locating:'LOCATING…', loading:'LOADING…', err:'Could not load data', retry:'RETRY',
+    hint:'<b>How it works</b> — allow location for GPS, otherwise it uses IP-based location to fetch live weather.<br><b>Swipe up</b> from the bottom for weekly forecast, wind, humidity, rain chance and waves.',
+    pageDesc:'A weather app that shows real location, weather and time <b>as color</b>. <b>Swipe up</b> from the bottom for details.',
+    condChips:{clear:'CLEAR',pcloudy:'PARTLY CLOUDY',overcast:'CLOUDY',rain:'RAIN',showers:'SHOWERS',snow:'SNOW',sleet:'SLEET',fog:'FOG',storm:'THUNDERSTORM',finedust:'FINE DUST',yellowdust:'YELLOW DUST'},
+    sky:{clear:'CLEAR',mclear:'MOSTLY CLEAR',pcloudy:'PARTLY CLOUDY',overcast:'CLOUDY'},
+    precip:{rain:'RAIN',drizzle:'DRIZZLE',snow:'SNOW',sleet:'SLEET'},
+    dust:{1:'FINE DUST',2:'YELLOW DUST'},
+    fogLabel:'FOG', stormLabel:'THUNDERSTORM', heavy:'HEAVY', light:'LIGHT', amp:' & ',
+    seasonChips:{spring:'SPRING',summer:'SUMMER',autumn:'AUTUMN',winter:'WINTER'},
+    dayChips:{day:'DAY',night:'NIGHT'},
+    compass:['N','NE','E','SE','S','SW','W','NW'],
+    conds:{clear:'CLEAR',mclear:'MOSTLY CLEAR',pcloudy:'PARTLY CLOUDY',overcast:'OVERCAST',fog:'FOG',drizzle:'DRIZZLE',frzdrizzle:'FREEZING DRIZZLE',rain:'RAIN',hrain:'HEAVY RAIN',frain:'FREEZING RAIN',snow:'SNOW',hsnow:'HEAVY SNOW',sgrains:'SNOW GRAINS',showers:'RAIN SHOWERS',hshowers:'HEAVY SHOWERS',ssnow:'SNOW SHOWERS',tstorm:'THUNDERSTORM'}}
+};
+const L=()=>I18N[lang];
+let S={tempC:null,cat:'clear',wx:{sky:0,precip:'none',inten:2,fog:false,storm:false},isDay:1,offset:0,curTime:'',season:'spring',
+       place:{n1:'',n2:'',code:''},names:null,sunrise:'',sunset:'',
+       wind:null,windDir:null,hum:null,pop:null,wave:undefined,storm:false,
+       daily:[],lat:37.5665,lon:126.978,timer:null};
+
+function seasonOf(month,lat){let m=month; if(lat<0)m=((month+6-1)%12)+1;
+  if(m>=3&&m<=5)return'spring'; if(m>=6&&m<=8)return'summer'; if(m>=9&&m<=11)return'autumn'; return'winter';}
+const fmtT=tc=>{const v=Math.round(tc);return(v<0?'−':'')+Math.abs(v);};
+function clk(iso){let[h,m]=iso.slice(11,16).split(':').map(Number);const ap=h>=12?'PM':'AM';h=h%12||12;const mm=String(m).padStart(2,'0');
+  return lang==='ko'?`${ap==='PM'?'오후':'오전'} ${h}:${mm}`:`${h}:${mm} ${ap}`;}
+function minOf(iso){const[h,m]=iso.slice(11,16).split(':').map(Number);return h*60+m;}
+function compass(d){return['N','NE','E','SE','S','SW','W','NW'][Math.round(d/45)%8];}
+
+/* ===== networking ===== */
+async function jget(u){const r=await fetch(u,{headers:{'Accept':'application/json'}}); if(!r.ok)throw new Error(r.status); return r.json();}
+async function resolveLocation(){
+  const geo=()=>new Promise((res,rej)=>{ if(!navigator.geolocation)return rej();
+    navigator.geolocation.getCurrentPosition(p=>res({lat:p.coords.latitude,lon:p.coords.longitude}),()=>rej(),
+      {timeout:8000,maximumAge:600000,enableHighAccuracy:false});});
+  try{const g=await geo(); return {lat:g.lat,lon:g.lon};}catch(e){}
+  try{const ip=await jget('https://ipwho.is/');
+    if(ip&&ip.success!==false&&ip.latitude!=null)return{lat:ip.latitude,lon:ip.longitude,city:ip.city,country:ip.country};}catch(e){}
+  try{const ip=await jget('https://ipapi.co/json/');
+    if(ip&&ip.latitude!=null)return{lat:ip.latitude,lon:ip.longitude,city:ip.city,country:ip.country_name};}catch(e){}
+  return {lat:37.5665,lon:126.978,city:'Seoul',country:'South Korea'};
+}
+async function revName(lat,lon,language){
+  try{const rv=await jget(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=${language}`);
+    return {city:rv.city||rv.locality||rv.principalSubdivision||'', country:rv.countryName||''};
+  }catch(e){ return null; }
+}
+function applyPlaceNames(){ if(!S.names)return; const nm=S.names[lang]||S.names.ko||{n1:'',n2:''};
+  S.place.n1=(nm.n1||'').toUpperCase(); S.place.n2=(nm.n2||'').toUpperCase(); }
+async function fetchWeather(lat,lon){
+  const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}`+
+    `&current=temperature_2m,apparent_temperature,weather_code,is_day,relative_humidity_2m,wind_speed_10m,wind_direction_10m`+
+    `&hourly=precipitation_probability&daily=weather_code,temperature_2m_max,temperature_2m_min,sunrise,sunset,precipitation_probability_max`+
+    `&wind_speed_unit=ms&timezone=auto&forecast_days=7`;
+  return jget(u);
+}
+async function fetchWaves(lat,lon){
+  try{const m=await jget(`https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lon}&current=wave_height&timezone=auto`);
+    const v=m&&m.current?m.current.wave_height:null; return (v==null)?null:v;
+  }catch(e){ return null; }
+}
+async function fetchDust(lat,lon){
+  try{const a=await jget(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm10,dust&timezone=auto`);
+    const cur=(a&&a.current)||{}; const p=cur.pm10!=null?cur.pm10:0, dd=cur.dust!=null?cur.dust:0;
+    if(p>=150||dd>=200)return 2; if(p>=80||dd>=80)return 1; return 0;
+  }catch(e){ return 0; }
+}
+
+/* ===== flow ===== */
+function showStat(m,err){const s=$("stat");s.classList.add('on');s.classList.toggle('err',!!err);$("statMsg").textContent=m;}
+function hideStat(){$("stat").classList.remove('on','err');}
+async function load(){
+  showStat(L().locating,false);
+  try{
+    const loc=await resolveLocation();
+    S.lat=loc.lat; S.lon=loc.lon; showStat(L().loading,false);
+    const w=await fetchWeather(loc.lat,loc.lon);
+    S.offset=w.utc_offset_seconds||0;
+    S.tempC=w.current.temperature_2m; S.isDay=w.current.is_day; S.curTime=w.current.time;
+    S.wx=decode2(w.current.weather_code); S.cat=catOf(S.wx);
+    S.hum=w.current.relative_humidity_2m; S.wind=w.current.wind_speed_10m; S.windDir=w.current.wind_direction_10m;
+    S.sunrise=w.daily.sunrise[0]; S.sunset=w.daily.sunset[0];
+    // precip prob for current hour
+    let pop=null; if(w.hourly&&w.hourly.time){const key=S.curTime.slice(0,13);
+      let idx=w.hourly.time.findIndex(t=>t.slice(0,13)===key); if(idx<0)idx=0;
+      pop=w.hourly.precipitation_probability[idx];}
+    if(pop==null&&w.daily.precipitation_probability_max)pop=w.daily.precipitation_probability_max[0];
+    S.pop=pop;
+    // daily 7
+    S.daily=[]; const n=w.daily.time.length;
+    for(let i=0;i<n;i++){const wxd=decode2(w.daily.weather_code[i]);
+      S.daily.push({date:w.daily.time[i],cat:catOf(wxd),hi:w.daily.temperature_2m_max[i],lo:w.daily.temperature_2m_min[i]});}
+    // localized place names (Korean + English) from coordinates, cached for instant language switch
+    const fbCity=loc.city||'', fbCountry=loc.country||'';
+    const [nk,ne,dustLvl]=await Promise.all([revName(loc.lat,loc.lon,'ko'), revName(loc.lat,loc.lon,'en'), fetchDust(loc.lat,loc.lon)]);
+    S.wx.dust=dustLvl;
+    S.names={
+      ko:{n1:(nk&&nk.city)||fbCity||'내 위치', n2:(nk&&nk.country)||fbCountry||''},
+      en:{n1:(ne&&ne.city)||fbCity||'MY LOCATION', n2:(ne&&ne.country)||fbCountry||''}
+    };
+    applyPlaceNames();
+    S.place.code=`${w.timezone_abbreviation?w.timezone_abbreviation+' · ':''}${loc.lat.toFixed(2)}, ${loc.lon.toFixed(2)}`;
+    S.season=seasonOf(parseInt(S.curTime.slice(5,7),10),loc.lat);
+    S.wave=undefined; // pending
+    hideStat(); render(); startClock();
+    fetchWaves(loc.lat,loc.lon).then(v=>{S.wave=v; renderMetrics();});
+  }catch(e){ showStat(L().err,true); }
+}
+
+/* ===== render ===== */
+function nowLocalMin(){const now=new Date();const d=new Date(now.getTime()+now.getTimezoneOffset()*60000+S.offset*1000);return d.getHours()*60+d.getMinutes();}
+function skyGradientCSS(){
+  let s=buildStops(S.tempC);
+  // season tint into the warm lower band
+  s[4]=mix(s[4],SEASON[S.season].rep,0.12); s[5]=mix(s[5],SEASON[S.season].rep,0.16);
+  const wx=S.wx||{sky:0,precip:'none'};
+  // cloud coverage muting (partly cloudy stays brighter than overcast)
+  const mute=[0,.06,.18,.34][wx.sky]||0, dk=[1,.98,.95,.9][wx.sky]||1;
+  if(mute>0) s=s.map(c=>mix(c,grey(c),mute).map(v=>v*dk));
+  // precipitation
+  const p=wx.precip;
+  if(p==='rain'||p==='drizzle'||p==='sleet') s=s.map(c=>mix(c,grey(c),.3).map(v=>v*(p==='drizzle'?.78:.68)));
+  if(p==='snow'||p==='sleet') s=s.map((c,i)=>mix(c,[255,255,255], i<3?.16:.3));
+  if(wx.fog) s=s.map(c=>mix(c,grey(c),.5).map(v=>v*.92));
+  if(wx.storm) s=s.map(c=>c.map(v=>v*.78));
+  if(wx.dust){const amt=wx.dust===2?.44:.26, ochre=[198,168,112]; s=s.map(c=>mix(mix(c,grey(c),.28),ochre,amt).map(v=>v*.95));}
+  if(S.isDay===0){const nf=[.4,.45,.5,.55,.64,.6]; s=s.map((c,i)=>mix(c,grey(c),.22).map(v=>v*nf[i]));}
+  return 'linear-gradient(180deg,'+s.map((c,i)=>`${rgb(c)} ${SKYPOS[i]}%`).join(',')+')';
+}
+function renderArc(){
+  const W=340,baseY=118,x0=48,x1=292,cx=(x0+x1)/2,rx=(x1-x0)/2,ry=80;
+  const sr=minOf(S.sunrise),ss=minOf(S.sunset),now=nowLocalMin();
+  let t,day; if(now<=sr){t=0;day=false;} else if(now>=ss){t=1;day=false;} else {t=(now-sr)/(ss-sr);day=true;}
+  const sx=cx-rx*Math.cos(Math.PI*t), sy=baseY-ry*Math.sin(Math.PI*t);
+  const sunFill=day?'#F6C558':'rgba(246,197,88,.4)';
+  const rays=day?[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180;
+    return `<line x1="${(sx+Math.cos(r)*8).toFixed(1)}" y1="${(sy+Math.sin(r)*8).toFixed(1)}" x2="${(sx+Math.cos(r)*11).toFixed(1)}" y2="${(sy+Math.sin(r)*11).toFixed(1)}" stroke="${sunFill}" stroke-width="1.4" stroke-linecap="round"/>`;}).join(''):'';
+  $("arc").innerHTML=`<svg viewBox="0 0 ${W} 150">
+    <path d="M${x0},${baseY} A${rx},${ry} 0 0 1 ${x1},${baseY}" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.5 8"/>
+    <line x1="14" y1="${baseY}" x2="326" y2="${baseY}" stroke="rgba(255,255,255,.85)" stroke-width="1.4" stroke-linecap="round"/>
+    <text x="${cx}" y="104" text-anchor="middle" fill="rgba(255,255,255,.72)" font-size="12.5" letter-spacing="${lang==='ko'?3:2}" font-family="inherit">${L().sunLabel}</text>
+    ${rays}<circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="6.5" fill="${sunFill}"/>
+    <text x="${x0-4}" y="143" text-anchor="middle" fill="rgba(255,255,255,.9)" font-size="12.5" letter-spacing="1.5" font-family="inherit">${clk(S.sunrise)}</text>
+    <text x="${x1+4}" y="143" text-anchor="middle" fill="rgba(255,255,255,.9)" font-size="12.5" letter-spacing="1.5" font-family="inherit">${clk(S.sunset)}</text>
+  </svg>`;
+}
+function renderEffects(){
+  const fx=$("fx");
+  fx.querySelectorAll('.drop,.flake,.star,.cloudband,.sunglow,.veil,.bolt').forEach(e=>e.remove());
+  const wx=S.wx||{sky:0,precip:'none'}, night=S.isDay===0;
+  const wet=(wx.precip==='rain'||wx.precip==='drizzle'||wx.precip==='sleet'||wx.storm);
+  // sun glow / stars when sky is open enough and no fog
+  if(!wx.fog && wx.sky<=2){
+    if(night){ const ns=wx.sky<=1?46:20;
+      for(let i=0;i<ns;i++){const st=document.createElement('div');st.className='star';const s=1+Math.random()*1.6;
+        st.style.width=s+'px';st.style.height=s+'px';st.style.left=Math.random()*100+'%';st.style.top=(Math.random()*58)+'%';
+        st.style.animationDelay=(Math.random()*3.2)+'s';st.style.opacity=wx.sky===2?.6:1;fx.appendChild(st);}}
+    else if(!S.storm){const g=document.createElement('div');g.className='sunglow';g.style.width='210px';g.style.height='210px';g.style.top='56%';
+      g.style.opacity=wx.sky===0?1:wx.sky===1?.8:.5;
+      g.style.background='radial-gradient(circle, rgba(255,240,208,.55), rgba(255,214,160,0) 70%)';fx.appendChild(g);}
+  }
+  // cloud bands: count follows coverage, dark when wet/storm
+  let n=wx.sky; if((wet||wx.fog)&&n<2)n=2; if(wx.storm)n=3;
+  const dark=(wet||wx.storm), base=dark?'rgba(60,70,88,':'rgba(255,255,255,';
+  for(let i=0;i<n;i++){const c=document.createElement('div');c.className='cloudband';
+    const w=150+Math.random()*120,h=w*0.4; c.style.width=w+'px';c.style.height=h+'px';
+    c.style.top=(14+i*18+Math.random()*8)+'%';
+    c.style.background=`radial-gradient(closest-side, ${base}${dark?'0.52':'0.4'}), ${base}0))`;
+    c.style.animationDuration=(28+Math.random()*20)+'s'; c.style.animationDelay=(-Math.random()*24)+'s'; fx.appendChild(c);}
+  if(wx.fog){const v=document.createElement('div');v.className='veil';fx.appendChild(v);}
+  // rain drops (rain/drizzle/sleet/storm) — count by intensity
+  if(wet){const rc=wx.precip==='drizzle'?24:(wx.storm?48:[0,26,40,56][wx.inten]||40);
+    for(let i=0;i<rc;i++){const d=document.createElement('div');d.className='drop';
+      const slow=wx.precip==='drizzle'; d.style.left=Math.random()*100+'%';
+      d.style.animationDuration=((slow?.9:.5)+Math.random()*.35)+'s';d.style.animationDelay=Math.random()+'s';d.style.opacity=.3+Math.random()*.5;fx.appendChild(d);}}
+  // snowflakes (snow/sleet) — count by intensity
+  if(wx.precip==='snow'||wx.precip==='sleet'){const sc=[0,22,34,48][wx.inten]||34;
+    for(let i=0;i<sc;i++){const f=document.createElement('div');f.className='flake';const sz=2+Math.random()*3;
+      f.style.width=sz+'px';f.style.height=sz+'px';f.style.left=Math.random()*100+'%';f.style.animationDuration=(4+Math.random()*4)+'s';f.style.animationDelay=(Math.random()*4)+'s';f.style.opacity=.5+Math.random()*.5;fx.appendChild(f);}}
+  if(wx.storm){const b=document.createElement('div');b.className='bolt';fx.appendChild(b);}
+  // yellow dust / fine dust: ochre haze veil + drifting motes
+  if(wx.dust){const dv=document.createElement('div');dv.className='dustveil';dv.style.opacity=wx.dust===2?.9:.55;fx.appendChild(dv);
+    const nm=wx.dust===2?30:16;
+    for(let i=0;i<nm;i++){const mo=document.createElement('div');mo.className='mote';const sz=1.5+Math.random()*2.5;
+      mo.style.width=sz+'px';mo.style.height=sz+'px';mo.style.top=(Math.random()*100)+'%';
+      mo.style.animationDuration=(9+Math.random()*10)+'s';mo.style.animationDelay=(-Math.random()*16)+'s';mo.style.opacity=.25+Math.random()*.4;fx.appendChild(mo);}}
+}
+function renderMetrics(){
+  const dir=S.windDir!=null?L().compass[Math.round(S.windDir/45)%8]:'';
+  $("mWind").innerHTML = S.wind==null?'—':`${Math.round(S.wind)} <small>m/s ${dir}</small>`;
+  $("mHum").innerHTML  = S.hum==null?'—':`${Math.round(S.hum)}<small>%</small>`;
+  $("mPop").innerHTML  = S.pop==null?'—':`${Math.round(S.pop)}<small>%</small>`;
+  $("mWave").innerHTML = S.wave===undefined?`<small>${L().waveLoading}</small>`:(S.wave==null?`<small>${L().waveInland}</small>`:`${S.wave.toFixed(1)} <small>m</small>`);
+}
+function renderDaily(){
+  const box=$("dlist"); box.innerHTML="";
+  if(!S.daily.length)return;
+  const lo=Math.min(...S.daily.map(d=>d.lo)), hi=Math.max(...S.daily.map(d=>d.hi)), span=Math.max(1,hi-lo);
+  S.daily.forEach((d,i)=>{
+    const [y,m,da]=d.date.split('-').map(Number); const dow=new Date(y,m-1,da).getDay();
+    const wd=i===0?L().today:(lang==='ko'?WDKO[dow]:WD[dow]);
+    const left=((d.lo-lo)/span)*100, width=((d.hi-d.lo)/span)*100;
+    const grad=`linear-gradient(90deg, ${rgb(interp(BOT,d.lo))}, ${rgb(interp(BOT,d.hi))})`;
+    const row=document.createElement('div'); row.className='drow';
+    row.innerHTML=`<span class="dw">${wd}</span><span class="di">${wIcon(d.cat)}</span>
+      <span class="dlo">${fmtT(d.lo)}°</span>
+      <span class="track"><span class="fill" style="left:${left}%;width:${Math.max(width,6)}%;background:${grad}"></span></span>
+      <span class="dhi">${fmtT(d.hi)}°</span>`;
+    box.appendChild(row);
+  });
+}
+function render(){
+  $("sky").style.background=skyGradientCSS();
+  const mo=parseInt(S.curTime.slice(5,7),10),day=parseInt(S.curTime.slice(8,10),10);
+  $("date").textContent = lang==='ko'?`${mo}월 ${day}일`:`${MON[mo-1]} ${day}`;
+  $("cond").innerHTML = condIcon(S.wx,S.isDay)+'<span>'+wxLabel(S.wx)+'</span>'; $("temp").textContent=`${fmtT(S.tempC)}°`;
+  $("n1").textContent=S.place.n1; $("n2").textContent=S.place.n2; $("code").textContent=S.place.code;
+  renderArc(); renderEffects(); renderMetrics(); renderDaily(); updateClock();
+}
+function updateClock(){
+  if(S.tempC==null)return; const now=new Date();
+  const d=new Date(now.getTime()+now.getTimezoneOffset()*60000+S.offset*1000);
+  let h=d.getHours(); const mm=String(d.getMinutes()).padStart(2,'0'); const ap=h>=12?'PM':'AM'; h=h%12||12;
+  $("time").textContent = lang==='ko'?`${ap==='PM'?'오후':'오전'} ${h}:${mm}`:`${h}:${mm} ${ap}`; renderArc();
+}
+function startClock(){ if(S.timer)clearInterval(S.timer); updateClock(); S.timer=setInterval(updateClock,15000); }
+
+/* ===== sheet + swipe ===== */
+function openSheet(){$("sheet").classList.add('open');}
+function closeSheet(){$("sheet").classList.remove('open');}
+$("handle").addEventListener('click',openSheet);
+$("shandle").addEventListener('click',closeSheet);
+let sy0=null,st0=0;
+const screen=$("screen");
+screen.addEventListener('pointerdown',e=>{sy0=e.clientY;st0=Date.now();});
+window.addEventListener('pointerup',e=>{ if(sy0==null)return; const dy=e.clientY-sy0, dt=Date.now()-st0; sy0=null;
+  if(dt>800&&Math.abs(dy)<60)return;
+  if(dy<-45)openSheet(); else if(dy>45)closeSheet(); });
+$("retryBtn").addEventListener('click',load);
+
+/* ===== settings + color test ===== */
+const CTP={
+  clear:{sky:0}, pcloudy:{sky:2}, overcast:{sky:3},
+  rain:{sky:3,precip:'rain',inten:2}, showers:{sky:2,precip:'rain',inten:2},
+  snow:{sky:3,precip:'snow',inten:2}, sleet:{sky:3,precip:'sleet',inten:2},
+  fog:{sky:3,fog:1}, storm:{sky:3,precip:'rain',inten:2,storm:1},
+  finedust:{sky:2,dust:1}, yellowdust:{sky:2,dust:2}
+};
+function wxFrom(o){return {sky:o.sky||0,precip:o.precip||'none',inten:o.inten||2,fog:!!o.fog,storm:!!o.storm,dust:o.dust||0};}
+let testMode=false, ct={cond:'clear',season:'summer',day:true};
+const pad2=n=>String(n).padStart(2,'0');
+function openSet(){$("settings").classList.add('open');}
+function closeSet(){$("settings").classList.remove('open');}
+$("gear").addEventListener('click',openSet);
+$("closeSet").addEventListener('click',closeSet);
+function ensureBase(){
+  if(!S.curTime){const d=new Date();
+    S.curTime=`${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}T${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    S.offset=-d.getTimezoneOffset()*60;}
+  if(!S.sunrise){const day=S.curTime.slice(0,10); S.sunrise=day+'T06:00'; S.sunset=day+'T18:30';}
+  if(!S.place.n1){S.place.n1='COLOR TEST'; S.place.n2=''; S.place.code='';}
+}
+function applyTest(){
+  ensureBase();
+  S.tempC=+$("ctTemp").value; S.season=ct.season; S.isDay=ct.day?1:0;
+  S.wx=wxFrom(CTP[ct.cond]||{sky:0}); S.cat=catOf(S.wx);
+  $("ctTempVal").textContent=`${S.tempC}°`;
+  render();
+}
+function setChips(sel,btn){document.querySelectorAll(sel+' button').forEach(x=>x.classList.toggle('on',x===btn));}
+$("ctToggle").addEventListener('click',()=>{
+  testMode=true; $("ctpanel").hidden=false; $("ctToggle").classList.add('on'); $("ctToggle").textContent=L().ctRunning;
+  applyTest();
+});
+$("ctTemp").addEventListener('input',()=>{ $("ctTempVal").textContent=$("ctTemp").value+'°'; if(testMode)applyTest(); });
+document.querySelectorAll('#ctCond button').forEach(b=>b.addEventListener('click',()=>{ct.cond=b.dataset.c;setChips('#ctCond',b);if(testMode)applyTest();}));
+document.querySelectorAll('#ctSeason button').forEach(b=>b.addEventListener('click',()=>{ct.season=b.dataset.s;setChips('#ctSeason',b);if(testMode)applyTest();}));
+document.querySelectorAll('#ctDay button').forEach(b=>b.addEventListener('click',()=>{ct.day=b.dataset.d==='day';setChips('#ctDay',b);if(testMode)applyTest();}));
+$("ctLive").addEventListener('click',()=>{
+  testMode=false; $("ctpanel").hidden=true; $("ctToggle").classList.remove('on'); $("ctToggle").textContent=L().ctOn;
+  closeSet(); load();
+});
+
+/* ===== language ===== */
+function applyLang(){
+  try{localStorage.setItem('cs_lang',lang);}catch(e){}
+  document.documentElement.lang=lang;
+  document.querySelectorAll('[data-i18n]').forEach(el=>{const v=L()[el.dataset.i18n]; if(v!=null)el.textContent=v;});
+  $("pageDesc").innerHTML=L().pageDesc; $("hint").innerHTML=L().hint;
+  $("handleLbl").textContent=L().handle+' ⌃';
+  document.querySelectorAll('#ctCond button').forEach(b=>b.textContent=L().condChips[b.dataset.c]);
+  document.querySelectorAll('#ctSeason button').forEach(b=>b.textContent=L().seasonChips[b.dataset.s]);
+  document.querySelectorAll('#ctDay button').forEach(b=>b.textContent=L().dayChips[b.dataset.d]);
+  document.querySelectorAll('#langSel button').forEach(b=>b.classList.toggle('on',b.dataset.l===lang));
+  $("ctToggle").textContent = testMode?L().ctRunning:L().ctOn;
+  applyPlaceNames();
+  if(S.tempC!=null) render();
+}
+document.querySelectorAll('#langSel button').forEach(b=>b.addEventListener('click',()=>{ lang=b.dataset.l; applyLang(); }));
+
+applyLang();
+load();
+</script>
+</body>
+</html>

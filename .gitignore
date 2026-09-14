@@ -1,0 +1,14 @@
+.DS_Store
+_to_delete/
+node_modules/
+dist/
+.vite-check/
+*.local
+.env.local
+frontend/vite.config.js.timestamp-*
+app/ios/**/xcuserdata/
+app/ios/**/DerivedData/
+app/android/**/build/
+app/android/.gradle/
+app/android/local.properties
+infra/code/cdk.out/

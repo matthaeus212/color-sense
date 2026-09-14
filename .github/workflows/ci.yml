@@ -1,0 +1,26 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  web:
+    runs-on: ubuntu-latest
+    defaults: { run: { working-directory: frontend } }
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22, cache: npm, cache-dependency-path: frontend/package-lock.json }
+      - run: npm ci --no-audit --no-fund
+      - name: 매핑·골든·카탈로그 테스트
+        run: npm test
+      - name: 빌드
+        run: npx vite build --outDir .vite-check --emptyOutDir
+      - name: 골든 케이스가 최신인지 확인 (컬러 엔진을 바꿨으면 npm run golden 후 커밋)
+        run: |
+          npm run golden >/dev/null
+          git diff --exit-code -- spec/color-engine.json || (echo "::error::spec/color-engine.json 이 엔진과 다릅니다. 'npm run golden' 실행 후 커밋하세요." && exit 1)
+      - name: 모의 BFF 계약 스모크
+        run: |
+          (node ../backend/mock-bff/server.mjs & sleep 1)
+          curl -sf "http://localhost:8787/v1/weather/KR-SEL?scenario=stale" | node -e "let s='';process.stdin.on('data',d=>s+=d).on('end',()=>{const j=JSON.parse(s);for(const k of ['cityId','source','updatedAt','nextUpdateAt','current','hourly','daily','sun','airQuality','marine'])if(!(k in j))throw new Error('missing '+k);console.log('contract ok')})"

@@ -1,0 +1,18 @@
+{
+  "name": "colorsense",
+  "private": true,
+  "description": "ColorSense — 날씨를 색으로 보여주는 앱 (모노레포 루트)",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "setup": "bash scripts/setup.sh",
+    "dev": "npm --prefix frontend run dev:mock",
+    "dev:live": "npm --prefix frontend run dev",
+    "mock": "node backend/mock-bff/server.mjs",
+    "test": "npm --prefix frontend test",
+    "check": "npm --prefix frontend run check",
+    "golden": "npm --prefix frontend run golden",
+    "smoke": "npm --prefix frontend run smoke",
+    "build": "npm --prefix frontend run build",
+    "docker": "docker compose -f infra/docker/docker-compose.yml up"
+  }
+}

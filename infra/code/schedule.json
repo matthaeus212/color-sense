@@ -1,0 +1,15 @@
+{
+  "timezone": "Asia/Seoul",
+  "note": "EventBridge Scheduler 정의 원본. cron은 KST. 기상청 발표 시각 + 여유분. 일 호출 합계 ≈ 2,900 (38개 도시 기준)",
+  "jobs": [
+    { "name": "kma-ultra-ncst",  "source": "kma",       "op": "getUltraSrtNcst", "cron": "40 * * * *",                    "targets": "KR", "callsPerRun": 20 },
+    { "name": "kma-ultra-fcst",  "source": "kma",       "op": "getUltraSrtFcst", "cron": "45 * * * *",                    "targets": "KR", "callsPerRun": 20 },
+    { "name": "kma-vilage-fcst", "source": "kma",       "op": "getVilageFcst",   "cron": "10 2,5,8,11,14,17,20,23 * * *", "targets": "KR", "callsPerRun": 20 },
+    { "name": "kma-mid-fcst",    "source": "kma",       "op": "getMidLandFcst+getMidTa", "cron": "10 6,18 * * *",         "targets": "KR", "callsPerRun": 40 },
+    { "name": "airkorea-rt",     "source": "airkorea",  "op": "getMsrstnAcctntRltmMesureDnsty", "cron": "20 * * * *",     "targets": "KR", "callsPerRun": 20 },
+    { "name": "kasi-sun",        "source": "kasi",      "op": "getAreaRiseSetInfo", "cron": "0 1 * * *",                  "targets": "KR", "callsPerRun": 20 },
+    { "name": "openmeteo-demand","source": "openmeteo", "op": "forecast+air-quality", "cron": "*/30 * * * *",             "targets": "non-KR viewed in last 24h", "callsPerRun": "≤18×1.4" }
+  ],
+  "quotas": { "kma": 10000, "airkorea": 10000, "kasi": 10000, "openmeteo": 10000 },
+  "alerts": { "warnAt": 0.8, "stopAt": 1.0, "freshnessMaxMinutes": 180 }
+}

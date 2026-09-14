@@ -1,0 +1,553 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><title>ColorSense iOS 디자인 노트</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+  :root{
+    --bg:#f6f5f1; --bg2:#ffffff; --surface:#ecebe5; --line:#dcdad2; --line2:#c4c1b6;
+    --ink:#1d2129; --ink2:#454b57; --mute:#7a8090; --accent:#c9782f; --accent-ink:#8a4d13; --accent2:#3f6fa8;
+    --good:#2f8f5b; --warn:#b98514; --bad:#b9472f; --phone-shadow:rgba(20,24,32,.35);
+    --display:"Outfit","Noto Sans KR",-apple-system,sans-serif; --body:"Noto Sans KR",-apple-system,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+    --sf:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display","Apple SD Gothic Neo","Helvetica Neue","Noto Sans KR",sans-serif;
+  }
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+    --bg:#13161d; --bg2:#1a1e27; --surface:#20252f; --line:#2c323d; --line2:#3d4452; --ink:#e8ebf1; --ink2:#b3bac6; --mute:#7f8797; --accent:#e9a95f; --accent-ink:#f2c48a; --accent2:#7fa8dc; --good:#6fc48f; --warn:#e0b04a; --bad:#e08a7c; --phone-shadow:rgba(0,0,0,.8)}}
+  :root[data-theme="dark"]{
+    --bg:#13161d; --bg2:#1a1e27; --surface:#20252f; --line:#2c323d; --line2:#3d4452; --ink:#e8ebf1; --ink2:#b3bac6; --mute:#7f8797; --accent:#e9a95f; --accent-ink:#f2c48a; --accent2:#7fa8dc; --good:#6fc48f; --warn:#e0b04a; --bad:#e08a7c; --phone-shadow:rgba(0,0,0,.8)}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);font-weight:400;line-height:1.75;font-size:14px;padding-block:0 96px;padding-inline:clamp(16px,4vw,48px)}
+  a{color:var(--accent-ink)}
+  h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;line-height:1.25;font-weight:500}
+  h2{font-size:24px;margin-bottom:4px}
+  h3{font-size:17px;margin:28px 0 10px;padding-left:10px;border-left:3px solid var(--accent)}
+  h4{font-size:14px;margin:18px 0 8px;color:var(--ink2)}
+  p{max-width:72ch;color:var(--ink2)}
+  p b,li b,td b{color:var(--ink);font-weight:500}
+  ul{padding-left:18px;color:var(--ink2);max-width:72ch}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface);padding:1px 6px;border-radius:4px;color:var(--ink)}
+  .wrap{max-width:1180px;margin:0 auto}
+  .num{font-family:var(--mono);color:var(--accent-ink);font-size:12px;letter-spacing:1px}
+  .eyebrow{font-family:var(--display);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent-ink);margin-bottom:8px}
+  section{padding-block:44px;border-top:1px solid var(--line)}
+  .cover{padding-block:56px 36px;border-top:0;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end}
+  .cover h1{font-size:clamp(30px,4.5vw,46px);font-weight:400;letter-spacing:-.5px}
+  .cover .sub{font-size:16px;margin-top:10px;color:var(--ink2)}
+  .docmeta{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font-size:12.5px;color:var(--ink2);border:1px solid var(--line);padding:14px 18px;background:var(--bg2);min-width:280px}
+  .docmeta dt{font-family:var(--display);color:var(--mute);letter-spacing:1px;font-size:11px;text-transform:uppercase}
+  table{border-collapse:collapse;width:100%;font-size:12.8px;background:var(--bg2)}
+  th,td{text-align:left;padding:9px 11px;border:1px solid var(--line);vertical-align:top;color:var(--ink2)}
+  th{font-family:var(--display);font-weight:500;font-size:11.5px;letter-spacing:1px;color:var(--ink);background:var(--surface);white-space:nowrap}
+  td:first-child{font-family:var(--mono);font-size:11.5px;color:var(--accent-ink);white-space:nowrap}
+  .tablewrap{overflow-x:auto;margin:10px 0 6px}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+  .callout{border:1px solid var(--line);border-left:3px solid var(--accent2);background:var(--bg2);padding:12px 16px;font-size:13px;color:var(--ink2);max-width:80ch}
+  .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--line);border:1px solid var(--line)}
+  .principles div{background:var(--bg2);padding:16px 18px}
+  .principles b{display:block;font-family:var(--display);font-size:15px;font-weight:500;color:var(--ink);margin-bottom:4px}
+  .principles small{color:var(--ink2);font-size:12.5px;line-height:1.6;display:block}
+  .tag{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:1px 7px;border-radius:3px;border:1px solid var(--line2);margin-right:4px}
+  .tag.new{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .tag.chg{background:var(--surface)}
+  /* before/after */
+  .ba{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;align-items:start;margin-top:14px}
+  .ba .col{display:flex;flex-direction:column;align-items:center;gap:10px}
+  .ba .col h4{margin:0;font-family:var(--display);letter-spacing:2px;text-transform:uppercase;font-size:11px;color:var(--mute)}
+  .ba .col small{color:var(--mute);font-size:11.5px;text-align:center;max-width:280px}
+  .scrhead{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline;margin-top:34px;padding-top:26px;border-top:1px dashed var(--line2)}
+  .scrhead h3{margin:0;border:0;padding:0;font-size:19px}
+  .scrhead .id{font-family:var(--mono);color:var(--accent-ink);font-size:12px}
+  .pin-n{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9px;font-weight:500;display:flex;align-items:center;justify-content:center;font-family:var(--display);box-shadow:0 0 0 2px rgba(255,255,255,.7);z-index:5}
+  .phone{box-shadow:0 30px 70px -30px var(--phone-shadow),0 0 0 1.5px rgba(255,255,255,.05) inset}
+  /* type scale */
+  .scale{display:grid;gap:6px;font-family:var(--sf)}
+  .scale div{display:grid;grid-template-columns:150px 1fr 70px;align-items:baseline;gap:12px;padding:6px 0;border-bottom:1px dashed var(--line)}
+  .scale .n{font-family:var(--mono);font-size:11px;color:var(--mute)}
+  .scale .pt{font-family:var(--mono);font-size:11px;color:var(--accent-ink);text-align:right}
+  @media (max-width:820px){.cover{grid-template-columns:1fr}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  /* phone (shared) */
+  
+  .phone{width:270px;height:570px;border-radius:40px;padding:9px;background:linear-gradient(160deg,#20252f,#0b0e13);box-shadow:0 30px 70px -30px rgba(0,0,0,.9),0 0 0 1.5px rgba(255,255,255,.05) inset;flex-shrink:0;font-family:var(--display)}
+  .screen{position:relative;width:100%;height:100%;border-radius:32px;overflow:hidden;background:#333;color:#fff}
+  .sky{position:absolute;inset:0;transition:background .8s ease}
+  .grain{position:absolute;inset:0;opacity:.05;background-image:radial-gradient(rgba(255,255,255,.9) .5px,transparent .6px);background-size:3px 3px;pointer-events:none}
+  .content{position:absolute;inset:0;display:flex;flex-direction:column;padding:42px 22px 52px}
+  .d-time,.d-date,.d-cond{font-size:11px;letter-spacing:2.5px;font-weight:300;opacity:.95}
+  .d-cond{display:flex;align-items:center;gap:6px;margin-top:2px}
+  .d-cond svg{width:15px;height:15px}
+  .d-temp{font-size:60px;font-weight:200;line-height:1;margin-top:12px}
+  .d-feels{font-size:10px;letter-spacing:1.5px;opacity:.8;margin-top:6px}
+  .spacer{flex:1}
+  .arc svg{width:100%;height:auto;display:block;overflow:visible}
+  .city{text-align:center}
+  .city .n1{font-size:15px;letter-spacing:5px;font-weight:200}
+  .city .n2{font-size:15px;letter-spacing:5px;font-weight:200}
+  .city .code{font-size:7px;letter-spacing:2px;opacity:.55;margin-top:6px}
+  .gear{position:absolute;top:15px;right:15px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center}
+  .gear svg{width:13px;height:13px}
+  .handle{position:absolute;left:0;right:0;bottom:11px;display:flex;flex-direction:column;align-items:center;gap:5px}
+  .handle .hl{font-size:7px;letter-spacing:2px;opacity:.7}
+  .handle .grip{width:30px;height:3px;border-radius:3px;background:rgba(255,255,255,.55)}
+  .badges{position:absolute;top:16px;left:22px;display:flex;gap:4px;flex-wrap:wrap}
+  .badge{font-size:6.5px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 7px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(8px)}
+  .badge.delayed,.badge.offline{background:rgba(120,40,40,.45)}
+  .stars{position:absolute;inset:0;pointer-events:none}
+  .star{position:absolute;background:#fff;border-radius:50%;box-shadow:0 0 3px rgba(255,255,255,.6)}
+  .glow{position:absolute;left:50%;top:56%;width:160px;height:160px;transform:translateX(-50%);border-radius:50%;filter:blur(10px);background:radial-gradient(circle,rgba(255,240,208,.5),rgba(255,214,160,0) 70%);pointer-events:none}
+  /* sheet */
+  .sheet{position:absolute;left:0;right:0;bottom:0;height:78%;background:rgba(28,32,42,.22);backdrop-filter:blur(24px) saturate(1.25);border-top:1px solid rgba(255,255,255,.22);border-radius:24px 24px 32px 32px;padding:9px 18px 16px;display:flex;flex-direction:column;overflow:hidden;font-size:9px}
+  .shandle{width:30px;height:3px;border-radius:3px;background:rgba(255,255,255,.4);margin:0 auto 10px}
+  .stitle{font-size:8px;letter-spacing:2.5px;opacity:.6;text-transform:uppercase;margin-bottom:8px}
+  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+  .tile{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 10px}
+  .tile .tl{font-size:7px;letter-spacing:1.5px;opacity:.65;text-transform:uppercase}
+  .tile .tv{font-size:15px;font-weight:200;margin-top:4px}
+  .tile .tv small{font-size:8px;opacity:.6}
+  .hlist{display:flex;gap:9px;overflow:hidden;padding-bottom:8px;margin-bottom:6px}
+  .hcol{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:24px}
+  .hcol .ht{font-size:7px;opacity:.65}.hcol svg{width:14px;height:14px}.hcol .hv{font-size:9px}.hcol .hp{font-size:6.5px;opacity:.6}
+  .drow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+  .drow .dw{width:26px;font-size:9px}.drow svg{width:14px;height:14px}.drow .dlo{width:18px;text-align:right;opacity:.6}.drow .dhi{width:18px;font-weight:500}
+  .drow .track{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.14);position:relative}.drow .fill{position:absolute;height:100%;border-radius:99px}
+  .attrib{font-size:6.5px;opacity:.55;margin-top:auto;line-height:1.5}
+  /* settings */
+  .settings{position:absolute;inset:0;background:rgba(24,28,38,.28);backdrop-filter:blur(24px) saturate(1.2);padding:36px 20px;font-size:9px}
+  .settings .stt{font-size:10px;letter-spacing:2.5px;margin-bottom:18px;display:flex;justify-content:space-between}
+  .slabel{font-size:9px;letter-spacing:2px;font-weight:500;margin-bottom:4px}
+  .sdesc{font-size:8px;opacity:.72;margin-bottom:10px;line-height:1.5}
+  .tbtn{background:#fff;color:#12161f;font-size:9px;letter-spacing:1.5px;padding:10px;border-radius:10px;text-align:center;font-weight:600;margin-bottom:14px}
+  .chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+  .chips span{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:rgba(255,255,255,.72);font-size:8px;letter-spacing:1px;padding:5px 9px;border-radius:999px}
+  .chips span.on{background:#fff;color:#12161f;border-color:#fff}
+  .cl{font-size:7px;letter-spacing:1.5px;opacity:.62;margin-bottom:6px;text-transform:uppercase}
+  .range{height:3px;border-radius:2px;background:linear-gradient(90deg,#fff 55%,rgba(255,255,255,.3) 55%);margin:8px 0 14px;position:relative}
+  .range::after{content:"";position:absolute;left:55%;top:-4px;width:11px;height:11px;border-radius:50%;background:#fff}
+  .src{font-size:6.5px;opacity:.55;margin-top:10px;line-height:1.5}
+  /* city picker */
+  .picker{position:absolute;inset:0;background:rgba(18,22,30,.55);backdrop-filter:blur(24px);padding:36px 18px;font-size:9px}
+  .search{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:9px 12px;font-size:9px;letter-spacing:1px;opacity:.9;margin-bottom:14px}
+  .crow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .crow .sw{width:22px;height:22px;border-radius:7px;flex-shrink:0}
+  .crow .cn{flex:1;letter-spacing:1px}.crow .cn small{display:block;font-size:7px;opacity:.55;letter-spacing:.5px}
+  .crow .ct{font-size:10px;font-weight:300}
+  .crow .pin{font-size:7px;opacity:.5;letter-spacing:1px}
+  .cnt{font-size:7px;opacity:.55;letter-spacing:1px;margin-top:10px;text-align:center}
+
+</style>
+<style>
+  /* ===== iOS(Liquid Glass) 목업 스타일 — .phone.ios ===== */
+  .phone.ios{font-family:var(--sf);letter-spacing:0}
+  .ios .screen{border-radius:38px}
+  .ios .content{padding:40px 20px 68px}
+  .ios .d-time{font-size:9px;letter-spacing:0;font-weight:400;opacity:.9}
+  .ios .d-date{font-size:9px;letter-spacing:0;font-weight:400;opacity:.9}
+  .ios .d-cond{font-size:10px;letter-spacing:0;font-weight:500;gap:5px}
+  .ios .d-temp{font-size:58px;font-weight:200;letter-spacing:-1.5px;margin-top:8px}
+  .ios .d-feels{font-size:9px;letter-spacing:0;font-weight:400;opacity:.85;margin-top:5px}
+  .ios .city .n1{font-size:14px;letter-spacing:0;font-weight:500}
+  .ios .city .n2{font-size:10px;letter-spacing:0;font-weight:400;opacity:.85;margin-top:1px}
+  .ios .city .code{display:none}
+  .glass{background:rgba(255,255,255,.16);border:.6px solid rgba(255,255,255,.45);box-shadow:inset 0 .5px 0 rgba(255,255,255,.55),inset 0 -6px 12px -8px rgba(255,255,255,.35),0 4px 14px -6px rgba(0,0,0,.35);backdrop-filter:blur(14px) saturate(1.6);-webkit-backdrop-filter:blur(14px) saturate(1.6)}
+  .ios .gear{top:14px;right:14px;width:30px;height:30px;background:rgba(255,255,255,.16);border:.6px solid rgba(255,255,255,.45)}
+  .ios .badges{top:14px;left:14px;gap:5px}
+  .ios .badge{font-size:7.5px;letter-spacing:0;text-transform:none;font-weight:500;padding:5px 8px;border-radius:999px;background:rgba(255,255,255,.16);border:.6px solid rgba(255,255,255,.45);backdrop-filter:blur(14px) saturate(1.6)}
+  .ios .badge.delayed,.ios .badge.offline{background:rgba(150,50,40,.45)}
+  .ios .dock{position:absolute;left:16px;right:16px;bottom:16px;height:36px;border-radius:999px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 14px;font-size:10px;font-weight:500}
+  .ios .dock .chev{width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:11px}
+  .ios .dock .lchip{display:flex;align-items:center;gap:6px;min-width:0}
+  .ios .dock .pinico{font-size:10px;opacity:.9}
+  .ios .dock .coord{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:7.5px;opacity:.75;font-weight:400;letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ios .homeind{position:absolute;left:50%;bottom:5px;width:72px;height:3px;border-radius:2px;background:rgba(255,255,255,.7);transform:translateX(-50%)}
+  /* sheet */
+  .ios .sheet{height:78%;border-radius:30px 30px 0 0;background:rgba(30,34,44,.35);backdrop-filter:blur(30px) saturate(1.5);border-top:.6px solid rgba(255,255,255,.35);padding:8px 16px 14px;font-size:9px;text-shadow:none}
+  .ios .shandle{width:26px;height:4px;background:rgba(255,255,255,.5);margin:0 auto 10px}
+  .ios .stitle{font-size:8.5px;letter-spacing:0;text-transform:none;font-weight:600;opacity:.75;margin-bottom:6px}
+  .ios .sheet .x{position:absolute;top:10px;right:14px;width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:11px}
+  .ios .metrics{gap:6px;margin-bottom:10px}
+  .ios .tile{border-radius:14px;background:rgba(255,255,255,.14);border:.6px solid rgba(255,255,255,.28);padding:7px 9px}
+  .ios .tile .tl{font-size:7px;letter-spacing:0;text-transform:none;font-weight:600;opacity:.7}
+  .ios .tile .tv{font-size:14px;font-weight:400;margin-top:3px}
+  .ios .hlist{gap:7px}
+  .ios .hcol{min-width:26px;border-radius:12px;padding:4px 2px;background:rgba(255,255,255,.08)}
+  .ios .hcol .ht{font-size:7px}.ios .hcol .hv{font-size:9px;font-weight:500}
+  .ios .drow{padding:5px 0;border-bottom:.6px solid rgba(255,255,255,.12)}
+  .ios .drow .dw{font-size:9px;font-weight:500}
+  .ios .attrib{font-size:6.5px;letter-spacing:0}
+  /* settings (Form) */
+  .ios .form{position:absolute;inset:0;background:rgba(24,28,38,.55);backdrop-filter:blur(30px) saturate(1.4);padding:14px 14px 0;font-size:9px}
+  .ios .form .nav{display:flex;justify-content:space-between;align-items:center;margin:4px 2px 10px}
+  .ios .form .nav b{font-size:14px;font-weight:700}
+  .ios .form .nav .x{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:11px}
+  .ios .grp{background:rgba(255,255,255,.12);border-radius:14px;margin-bottom:10px;overflow:hidden}
+  .ios .grp .hd{font-size:7px;font-weight:600;opacity:.65;padding:0 12px 4px;text-transform:uppercase;letter-spacing:.4px;background:none}
+  .ios .row{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;border-bottom:.6px solid rgba(255,255,255,.12);font-size:9px;font-weight:400}
+  .ios .row:last-child{border-bottom:0}
+  .ios .row .sub{display:block;font-size:7px;opacity:.65;margin-top:1px}
+  .ios .tog{width:26px;height:16px;border-radius:999px;background:rgba(255,255,255,.28);position:relative;flex-shrink:0}
+  .ios .tog::after{content:"";position:absolute;top:2px;left:2px;width:12px;height:12px;border-radius:50%;background:#fff}
+  .ios .tog.on{background:#34c759}.ios .tog.on::after{left:12px}
+  .ios .seg{display:flex;background:rgba(255,255,255,.12);border-radius:8px;padding:2px;font-size:8px}
+  .ios .seg span{padding:3px 9px;border-radius:6px}.ios .seg span.on{background:rgba(255,255,255,.9);color:#12161f;font-weight:600}
+  .ios .sld{height:3px;border-radius:2px;background:linear-gradient(90deg,#fff 40%,rgba(255,255,255,.3) 40%);position:relative;flex:1;margin:0 10px}
+  .ios .sld::after{content:"";position:absolute;left:40%;top:-6px;width:15px;height:15px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.3)}
+  .ios .grpttl{font-size:7px;font-weight:600;opacity:.65;padding:0 12px 4px;text-transform:uppercase;letter-spacing:.4px}
+  /* picker (NavigationStack + searchable) */
+  .ios .pick{position:absolute;inset:0;background:rgba(24,28,38,.55);backdrop-filter:blur(30px) saturate(1.4);padding:14px 14px 0;font-size:9px}
+  .ios .pick .lt{font-size:17px;font-weight:700;margin:6px 2px 8px;display:flex;justify-content:space-between;align-items:center}
+  .ios .pick .lt .x{width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:11px}
+  .ios .sf{height:26px;border-radius:999px;display:flex;align-items:center;padding:0 10px;font-size:9px;opacity:.9;margin-bottom:10px;gap:6px}
+  .ios .crow{padding:7px 4px;border-bottom:.6px solid rgba(255,255,255,.12)}
+  .ios .crow .sw{width:26px;height:26px;border-radius:8px}
+  .ios .crow .cn{font-size:10px;font-weight:500;letter-spacing:0}.ios .crow .cn small{font-size:7px;letter-spacing:0}
+  .ios .crow .ct{font-size:12px;font-weight:400}
+  .ios .crow .pin{font-size:7px;letter-spacing:0;opacity:.6}
+  .ios .crow.swiped{position:relative;overflow:hidden}
+  .ios .crow.swiped .del{position:absolute;right:0;top:0;bottom:0;width:48px;background:#ff453a;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:600}
+  .ios .cnt{font-size:7px;letter-spacing:0}
+</style>
+
+<div class="wrap">
+
+<section class="cover">
+  <div>
+    <div class="eyebrow">iOS Design Development · HIG &amp; Design Resources</div>
+    <h1>ColorSense iOS 디자인 노트</h1>
+    <p class="sub">Apple Human Interface Guidelines(Liquid Glass, iOS 26→27 개선)와 공식 디자인 리소스(iOS 27 Figma 키트, SF Symbols, Icon Composer)를 기준으로 iOS 버전 디자인을 다듬었다. 웹 프로토타입 기준 화면과 나란히 놓고, 무엇을 왜 바꿨는지 화면별로 적는다.</p>
+  </div>
+  <dl class="docmeta">
+    <dt>문서 버전</dt><dd>v1.1 · 2026-09-14 (도크 확정, 좌표 유지)</dd>
+    <dt>작성</dt><dd>Cecilia(디자인) · Lily(iOS) · 정리 Mateus</dd>
+    <dt>대상 OS</dt><dd>iOS 26 이상, iOS 27 기본 (2026-09 정식)</dd>
+    <dt>기준 문서</dt><dd>HIG Materials·Typography·Playing haptics·App icons, iOS 27 Design Resources</dd>
+    <dt>상위 문서</dt><dd>기획·화면설계서 v1.1, 디자인 스펙</dd>
+  </dl>
+</section>
+
+<section id="a1">
+  <div class="eyebrow">Part A · 분석</div>
+  <h2><span class="num">1</span> 2026년 Apple 디자인 기준에서 우리에게 해당하는 것</h2>
+  <p>iOS 26에서 도입된 <b>Liquid Glass</b>가 iOS 27에서는 "성능과 정제" 중심으로 다듬어졌고, 사용자가 글래스 투명도를 시스템 슬라이더로 조절할 수 있게 됐다. 날씨 앱은 Apple이 글래스를 설명할 때 드는 대표 사례(콘텐츠가 화면 전체를 채우고 컨트롤이 그 위에 떠 있는 구조)와 정확히 같은 형태라, 원칙을 거의 그대로 적용할 수 있다.</p>
+  <div class="principles">
+    <div><b>계층 — 콘텐츠와 컨트롤을 분리</b><small>글래스는 내비게이션·컨트롤 층에만 쓰고 콘텐츠 층(리스트·본문)에는 쓰지 않는다. 우리에게 콘텐츠 층은 <b>날씨 배경과 온도</b>, 컨트롤 층은 <b>배지·설정·도시 도크·시트</b>다.</small></div>
+    <div><b>조화 — 동심원 모서리와 캡슐</b><small>화면 모서리와 같은 중심을 갖는 둥근 모서리(concentric), 캡슐형 컨트롤. 우리 시트·타일·배지의 반지름을 기기 모서리 기준으로 다시 잡는다.</small></div>
+    <div><b>일관성 — 시스템 컴포넌트 우선</b><small>시트·검색·폼·토글·스와이프 액션은 시스템 것을 쓴다. 웹 프로토의 커스텀 제스처·칩·슬라이더는 iOS에서 재현하지 않는다.</small></div>
+    <div><b>글래스 종류</b><small><b>Regular</b>는 일반 컨트롤, <b>Clear</b>는 사진·영상 같은 풍부한 콘텐츠 위에 디밍과 함께 쓴다. 날씨 배경은 "풍부한 콘텐츠"이므로 홈의 컨트롤은 Clear + 약한 디밍, 시트·설정처럼 글이 많은 층은 Regular.</small></div>
+    <div><b>글래스 위에 글래스 금지</b><small>시트(글래스) 안의 타일은 글래스가 아니라 채도 낮은 반투명 채움으로. 도크 안의 버튼도 마찬가지.</small></div>
+    <div><b>iOS 27 개선 반영</b><small>더 뚜렷한 테두리, 다크 모드에서 더 밝은 글래스, 시트 닫기 버튼 가시성 강화, 스크롤 가장자리 효과 기본값 "hard", 어떤 스크롤 항목에나 스와이프 액션, 투명도 슬라이더 전 범위 테스트.</small></div>
+  </div>
+  <h4>그 밖의 기준값</h4>
+  <div class="tablewrap"><table>
+    <thead><tr><th>항목</th><th>기준</th><th>출처</th></tr></thead>
+    <tbody>
+      <tr><td>텍스트 스타일</td><td>Large Title 34 · Title 1 28 · Title 2 22 · Title 3 20 · Headline 17 semibold · Body 17 · Callout 16 · Subheadline 15 · Footnote 13 · Caption 1 12 · Caption 2 11 (pt, Dynamic Type 기본 크기)</td><td>HIG Typography, iOS 26 가이드</td></tr>
+      <tr><td>최소 탭 영역</td><td>44 × 44 pt</td><td>HIG Layout</td></tr>
+      <tr><td>안전 영역</td><td>홈 인디케이터 위 21pt 비움, 플로팅 컨트롤은 좌우·아래 인셋 21pt</td><td>iOS 26 가이드</td></tr>
+      <tr><td>텍스트 대비</td><td>4.5:1 이상. 글래스 위 텍스트는 배경 전 범위(투명도 슬라이더 포함)에서 검증</td><td>HIG Accessibility, iOS 27</td></tr>
+      <tr><td>햅틱</td><td>시스템 타입(impact light/medium/heavy/soft/rigid, selection, notification)을 의미에 맞게, 시청각과 동기, 남용 금지. SwiftUI <code>sensoryFeedback</code></td><td>HIG Playing haptics</td></tr>
+      <tr><td>아이콘</td><td>Icon Composer 레이어 아이콘, 라이트·다크·클리어·틴트 4종 자동 생성, 텍스트 없음. iOS 27에서도 형태 규격 동일</td><td>HIG App icons, iOS 27 Design Resources</td></tr>
+      <tr><td>심볼</td><td>SF Symbols 사용, 아이콘에는 텍스트 라벨(VoiceOver) 병행, 단순한 1~2색</td><td>HIG, 접근성 분석</td></tr>
+      <tr><td>설계 프레임</td><td>390 × 844 pt 기준, 440 × 956 pt까지 검증</td><td>iOS 26 가이드</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="a2">
+  <h2><span class="num">2</span> 변경 요약</h2>
+  <p><span class="tag new">NEW</span> 새로 도입 · <span class="tag chg">CHG</span> 웹 기준에서 변경 · 색 엔진·라벨·데이터 정책(D3·D4·P-01~P-11)은 바뀌지 않는다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>#</th><th>영역</th><th>웹 프로토 기준(전)</th><th>iOS(후)</th><th>근거</th></tr></thead>
+    <tbody>
+      <tr><td>C1 <span class="tag chg">CHG</span></td><td>컨트롤 재질</td><td>반투명 검정 필 + 흰 테두리 배지, 회색 원형 ⚙</td><td><b>Liquid Glass</b>(홈은 Clear + 디밍 10%, 시트·설정은 Regular). 시스템이 투명도 슬라이더·Reduce Transparency에 맞춰 자동 대체</td><td>Materials, iOS 27 슬라이더</td></tr>
+      <tr><td>C2 <span class="tag new">NEW</span></td><td>하단 도크</td><td>"날씨 상세 ⌃" 텍스트 + 그립 바</td><td>하단 <b>플로팅 글래스 캡슐</b>: 왼쪽 <b>위치 칩</b>(◎ 현재 위치/기본 도시/즐겨찾기 + <b>좌표 문자열</b> "KST · 35.18, 129.08" 모노스페이스 Caption 2, 탭→도시 선택) · 오른쪽 ⌃ 버튼(탭→시트). 도시명·국가는 콘텐츠 층에 그대로 두어 중복 없음. 위로 드래그도 유지. 홈 인디케이터 위 21pt</td><td>탭 바/툴바 패턴, 44pt</td></tr>
+      <tr><td>C3 <span class="tag chg">CHG</span></td><td>상세 시트</td><td>커스텀 78% 패널, 자체 제스처</td><td><b>시스템 시트</b> <code>.presentationDetents([.fraction(0.78), .large])</code>, 드래그 인디케이터, 우상단 닫기 ⓧ(iOS 27 가시성), 내부 스크롤과 닫기 제스처를 시스템이 분리</td><td>Sheets, iOS 27</td></tr>
+      <tr><td>C4 <span class="tag chg">CHG</span></td><td>타이포</td><td>Helvetica Thin, 자간 3~6px, 9~10.5px 소형 텍스트</td><td><b>SF Pro / Apple SD Gothic Neo</b>, Dynamic Type 텍스트 스타일. 자간은 시스템 기본. 최소 Caption 2(11pt). 온도는 <code>@ScaledMetric</code> 78pt thin, 접근성 크기에서 96pt 상한</td><td>Typography</td></tr>
+      <tr><td>C5 <span class="tag chg">CHG</span></td><td>탭 영역</td><td>⚙ 34px, 배지 22px, 핸들 텍스트</td><td>모든 컨트롤 <b>44pt</b> 히트 영역(시각 크기는 작아도 됨)</td><td>Layout</td></tr>
+      <tr><td>C6 <span class="tag chg">CHG</span></td><td>도시 선택</td><td>커스텀 검색창·행</td><td><b>NavigationStack + .searchable</b>(글래스 검색 필드), 대제목 "도시", 시스템 List, 행 <b>스와이프 액션</b>(삭제·핀), 길게 눌러 순서 변경</td><td>Search, Lists, iOS 27 스와이프</td></tr>
+      <tr><td>C7 <span class="tag chg">CHG</span></td><td>설정</td><td>커스텀 칩·range 슬라이더</td><td><b>Form</b>(grouped): 언어 Segmented Picker, 환경음 Toggle + Slider, 햅틱 Toggle, 데이터 출처 Link, 컬러 테스트는 <code>#if DEBUG</code> 섹션</td><td>Forms, Toggles</td></tr>
+      <tr><td>C8 <span class="tag chg">CHG</span></td><td>아이콘</td><td>커스텀 라인 SVG</td><td>시스템 문맥(설정·검색·도크)은 <b>SF Symbols</b>; 날씨 조건 아이콘은 SF Symbols 앱으로 만든 <b>커스텀 심볼 세트</b>(강도별 3변형)로 웹과 형태 일치, hierarchical 렌더링</td><td>SF Symbols</td></tr>
+      <tr><td>C9 <span class="tag new">NEW</span></td><td>다중 도시</td><td>좌우 스와이프(예정)</td><td>수평 <code>ScrollView</code> + <code>.scrollTargetBehavior(.paging)</code>, 도크에 페이지 점 대신 도시명 전환, 전환 시 <code>.sensoryFeedback(.selection)</code></td><td>Navigation, Haptics</td></tr>
+      <tr><td>C10 <span class="tag new">NEW</span></td><td>접근성</td><td>텍스트 불투명도 규칙만</td><td>Reduce Transparency→글래스 자동 불투명화, Increase Contrast→배지·도크 테두리 강화, Reduce Motion→파티클 정지·크로스페이드 즉시, Dynamic Type 접근성 5단계 레이아웃, VoiceOver 라벨 "구름많음, 21도, 체감 23도, 갱신 5분 전"</td><td>Accessibility</td></tr>
+      <tr><td>C11 <span class="tag new">NEW</span></td><td>앱 아이콘</td><td>없음</td><td>Icon Composer 3레이어(하늘 그라데이션 · 일출 아치 · 해). 라이트·다크·클리어·틴트 자동, 텍스트 없음</td><td>App icons</td></tr>
+      <tr><td>C12 <span class="tag chg">CHG</span></td><td>햅틱 매핑</td><td>P-11 일반 정의</td><td>도시 전환 <code>.selection</code> · 시트 열림/닫힘 <code>.impact(.soft)</code> · 천둥 <code>.impact(.heavy)</code> · 강수 강도 변화 <code>.impact(.light)</code>(강도 3은 2회) · 즐겨찾기 상한 <code>.warning</code></td><td>Playing haptics</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="b1">
+  <div class="eyebrow">Part B · 화면별 전/후</div>
+  <h2><span class="num">3</span> 화면 비교</h2>
+  <p>왼쪽이 웹 프로토 기준(기획·화면설계서 v1.1), 오른쪽이 iOS 디벨롭 결과. 배경은 같은 컬러 엔진이 그린다. 목업은 390pt 프레임을 0.69배로 축소한 것이라 iOS 텍스트는 실제 pt의 약 0.7배 픽셀로 보인다.</p>
+
+  <div class="scrhead"><span class="id">SCR-01</span><h3>홈</h3></div>
+  <div class="ba">
+    <div class="col"><h4>Before · Web</h4><div class="phone" data-phone="home" data-temp="21" data-preset="pcloudy" data-day="1" data-badges="stale"></div><small>커스텀 핸들·자간 넓은 헬베티카·검정 필 배지</small></div>
+    <div class="col"><h4>After · iOS</h4><div class="phone ios" data-phone="home" data-temp="21" data-preset="pcloudy" data-day="1" data-badges="stale" data-pins="1:4,26;2:224,12;3:150,66;4:4,510;5:222,522"></div><small>Clear 글래스 배지·⚙, 하단 도크(위치 칩 + 좌표 + ⌃), SF Pro Dynamic Type</small></div>
+    <div class="col" style="align-items:stretch">
+      <div class="tablewrap"><table><thead><tr><th>#</th><th>변경</th></tr></thead><tbody>
+        <tr><td>1</td><td>배지: Clear 글래스 캡슐, Caption 2(11pt) 중량 medium, 소문자 그대로. 44pt 히트 영역, 탭→갱신 시각 팝오버</td></tr>
+        <tr><td>2</td><td>⚙: 글래스 원형 44pt, SF Symbol <code>gearshape</code></td></tr>
+        <tr><td>3</td><td>헤더: 시각 Subheadline, 날짜·라벨 Subheadline/Headline, 온도 78pt thin(−1.5 트래킹), 체감 Footnote. 한글은 Apple SD Gothic Neo 자동</td></tr>
+        <tr><td>4</td><td>일출·일몰 아치·도시명은 콘텐츠 층 유지(글래스 아님). 도시명 Headline + 국가 Footnote. 좌표 문자열은 도크로 이동(P-09 유지)</td></tr>
+        <tr><td>5</td><td>하단 도크: 글래스 캡슐 44pt. 왼쪽 위치 칩 = 출처 아이콘(◎ GPS · ⌂ 기본 도시 · ★ 즐겨찾기) + 라벨 + 좌표 "KST · 35.18, 129.08"(모노스페이스 Caption 2, AX 크기에서 먼저 숨김), 탭→도시 선택. 오른쪽 ⌃(탭→시트). 홈 인디케이터 위 21pt</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+
+  <div class="scrhead"><span class="id">SCR-02</span><h3>상세 시트</h3></div>
+  <div class="ba">
+    <div class="col"><h4>Before · Web</h4><div class="phone" data-phone="sheet" data-temp="21" data-preset="rain" data-day="1"></div><small>커스텀 패널, 대문자 자간 제목</small></div>
+    <div class="col"><h4>After · iOS</h4><div class="phone ios" data-phone="sheet" data-temp="21" data-preset="rain" data-day="1" data-pins="1:4,140;2:222,140;3:4,200;4:4,290;5:4,352;6:4,522"></div><small>시스템 시트(.fraction(0.78)), Regular 글래스, 닫기 ⓧ</small></div>
+    <div class="col" style="align-items:stretch">
+      <div class="tablewrap"><table><thead><tr><th>#</th><th>변경</th></tr></thead><tbody>
+        <tr><td>1</td><td>시스템 드래그 인디케이터(36×5pt), 시트 모서리는 기기와 동심원</td></tr>
+        <tr><td>2</td><td>닫기 ⓧ 버튼 상시 표시(iOS 27 소형 시트 가시성 개선)</td></tr>
+        <tr><td>3</td><td>타일: 글래스가 아닌 반투명 채움(글래스 위 글래스 금지), 라벨 Caption 1 semibold, 값 Title 3</td></tr>
+        <tr><td>4</td><td>시간별: 칸마다 얕은 채움 카드, 수평 스크롤은 시트 제스처와 시스템이 분리</td></tr>
+        <tr><td>5</td><td>주간: 시스템 List 행 높이(44pt), 구분선 시스템 기본. 온도 막대는 유지</td></tr>
+        <tr><td>6</td><td>출처: Caption 2, Open-Meteo는 <code>Link</code>. 시트가 <code>.large</code>로 올라가면 스크롤 가장자리 효과 "hard"(iOS 27 기본)</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+
+  <div class="scrhead"><span class="id">SCR-03</span><h3>도시 선택</h3></div>
+  <div class="ba">
+    <div class="col"><h4>Before · Web</h4><div class="phone" data-phone="picker" data-temp="21" data-preset="pcloudy" data-day="1"></div><small>커스텀 검색창·행</small></div>
+    <div class="col"><h4>After · iOS</h4><div class="phone ios" data-phone="picker" data-temp="21" data-preset="pcloudy" data-day="1" data-pins="1:4,40;2:4,86;3:4,150;4:222,196;5:4,420"></div><small>NavigationStack 대제목, .searchable, 스와이프 삭제</small></div>
+    <div class="col" style="align-items:stretch">
+      <div class="tablewrap"><table><thead><tr><th>#</th><th>변경</th></tr></thead><tbody>
+        <tr><td>1</td><td>대제목 "도시"(Large Title 34) + 닫기 ⓧ. <code>.large</code> 시트로 표시</td></tr>
+        <tr><td>2</td><td>글래스 검색 필드(<code>.searchable</code>), 한/영 부분 일치, 취소 버튼 시스템</td></tr>
+        <tr><td>3</td><td>행: 색 조각 26pt 둥근 사각(8pt), 도시 Body, 국가·현지시각 Footnote, 온도 Title 3 tabular</td></tr>
+        <tr><td>4</td><td>왼쪽 스와이프 → 삭제(빨강), 오른쪽 → 핀. 길게 누르기 → 이동(EditMode)</td></tr>
+        <tr><td>5</td><td>푸터 Footnote "즐겨찾기 7/10". 10개 도달 시 추가 버튼 비활성 + <code>.warning</code> 햅틱</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+
+  <div class="scrhead"><span class="id">SCR-04</span><h3>설정</h3></div>
+  <div class="ba">
+    <div class="col"><h4>Before · Web</h4><div class="phone" data-phone="settings" data-temp="20" data-preset="clear" data-day="1"></div><small>커스텀 칩·range</small></div>
+    <div class="col"><h4>After · iOS</h4><div class="phone ios" data-phone="settings" data-temp="20" data-preset="clear" data-day="1" data-pins="1:4,64;2:4,132;3:4,214;4:4,296;5:4,378"></div><small>Form(grouped), 시스템 Toggle·Slider·Picker</small></div>
+    <div class="col" style="align-items:stretch">
+      <div class="tablewrap"><table><thead><tr><th>#</th><th>변경</th></tr></thead><tbody>
+        <tr><td>1</td><td>언어: Segmented Picker(한국어 / English). 시스템 설정 앱 언어 링크도 제공</td></tr>
+        <tr><td>2</td><td>환경음: Toggle(기본 꺼짐) → 켜면 Slider(0~100, 기본 40, <code>speaker.wave</code> 심볼) 노출, 변경 시 즉시 미리듣기</td></tr>
+        <tr><td>3</td><td>햅틱: Toggle(기본 켜짐). 시스템 햅틱 꺼짐이면 비활성 + 각주</td></tr>
+        <tr><td>4</td><td>데이터 출처: 각 기관 행, Open-Meteo·에어코리아는 <code>Link</code>(Safari)</td></tr>
+        <tr><td>5</td><td>컬러 테스트: <code>#if DEBUG</code> 섹션. 온도 Slider, 날씨 Picker(메뉴), 주/야 Toggle. 공개 빌드에선 섹션 자체가 없음</td></tr>
+      </tbody></table></div>
+    </div>
+  </div>
+</section>
+
+<section id="c1">
+  <div class="eyebrow">Part C · 스펙</div>
+  <h2><span class="num">4</span> 타이포 스케일 (Dynamic Type 기본 크기)</h2>
+  <div class="cols">
+    <div class="scale">
+      <div><span class="n">temperature</span><span style="font-size:40px;font-weight:200;letter-spacing:-1.5px">21°</span><span class="pt">78 · thin</span></div>
+      <div><span class="n">largeTitle</span><span style="font-size:24px;font-weight:700">도시</span><span class="pt">34 · bold</span></div>
+      <div><span class="n">title3</span><span style="font-size:15px;font-weight:400">4 m/s 남</span><span class="pt">20</span></div>
+      <div><span class="n">headline</span><span style="font-size:13px;font-weight:600">구름많음 · 부산</span><span class="pt">17 · semibold</span></div>
+      <div><span class="n">body</span><span style="font-size:13px">날씨 환경음</span><span class="pt">17</span></div>
+      <div><span class="n">subheadline</span><span style="font-size:12px">오후 2:05 · 9월 14일</span><span class="pt">15</span></div>
+      <div><span class="n">footnote</span><span style="font-size:11px">체감 23° · 대한민국</span><span class="pt">13</span></div>
+      <div><span class="n">caption1</span><span style="font-size:10px;font-weight:600">바람 · 습도</span><span class="pt">12 · semibold</span></div>
+      <div><span class="n">caption2</span><span style="font-size:9.5px;font-weight:500">갱신 지연 · 데이터 출처</span><span class="pt">11 · medium</span></div>
+    </div>
+    <div>
+      <h4>규칙</h4>
+      <ul>
+        <li>모든 텍스트는 텍스트 스타일로 선언(<code>.font(.footnote)</code>). 고정 pt는 온도 하나뿐이며 <code>@ScaledMetric</code>으로 스케일, 접근성 크기에서 96pt 상한.</li>
+        <li>자간(kerning)은 시스템 기본. 웹의 대문자·넓은 자간 라벨 스타일은 iOS에서 쓰지 않는다(한글 가독성·Dynamic Type 호환).</li>
+        <li>11pt(Caption 2) 아래 텍스트 없음. 배지·출처가 하한.</li>
+        <li>숫자는 <code>.monospacedDigit()</code>: 시각, 시간별·주간 온도, 타일 값.</li>
+        <li>접근성 크기(AX1~AX5)에서: 헤더 세로 스택 유지, 타일 2×2→1열, 시간별 스트립 높이 증가, 도크 도시명 1줄 말줄임.</li>
+        <li>한글은 Apple SD Gothic Neo가 자동 매칭된다. 웹 토큰의 Pretendard는 iOS에 번들하지 않는다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <h2 style="margin-top:36px"><span class="num">5</span> 재질·모양·간격</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>요소</th><th>재질</th><th>모양</th><th>크기 / 간격</th><th>SwiftUI</th></tr></thead>
+    <tbody>
+      <tr><td>배지</td><td>Clear glass + 디밍 10%(홈 배경 위), delayed/offline은 <code>.tint(.red.opacity(.5))</code></td><td>캡슐</td><td>높이 28pt(히트 44), 좌 16pt, 상단 safe area + 8pt, 간격 6pt</td><td><code>.glassEffect(.clear.tint(...), in: .capsule)</code></td></tr>
+      <tr><td>⚙ 버튼</td><td>Clear glass</td><td>원</td><td>44pt, 우 16pt</td><td><code>Button{}.buttonStyle(.glass)</code></td></tr>
+      <tr><td>하단 도크</td><td>Clear glass + 디밍 10%</td><td>캡슐</td><td>높이 44pt, 좌우 16pt, 홈 인디케이터 위 21pt. 위치 칩: 아이콘 12pt + 라벨 Subheadline medium + 좌표 Caption 2 monospaced, 좌 패딩 14pt · ⌃ 버튼 36pt 원, 우 패딩 4pt</td><td><code>GlassEffectContainer{ HStack{ Button(위치 칩); Spacer(); Button(⌃) } }</code></td></tr>
+      <tr><td>상세 시트</td><td>Regular glass(시스템 시트 배경)</td><td>상단 모서리 동심원(기기 반지름 − 인셋)</td><td>detents .fraction(0.78)·.large, 내부 좌우 16pt</td><td><code>.sheet{}.presentationDetents([...]).presentationBackground(.thinMaterial)</code></td></tr>
+      <tr><td>타일·시간별 칸</td><td>반투명 채움(글래스 아님) white 14%</td><td>14pt 모서리(시트 30pt와 동심)</td><td>타일 2×2 간격 8pt, 패딩 12pt</td><td><code>RoundedRectangle(cornerRadius:14, style:.continuous)</code></td></tr>
+      <tr><td>도시 선택·설정</td><td>Regular glass 시트 위 시스템 List/Form</td><td>시스템</td><td>행 44pt, 인셋 시스템</td><td><code>NavigationStack{ List{} .searchable }</code>, <code>Form{}</code></td></tr>
+      <tr><td>배경 전환</td><td>—</td><td>—</td><td>1.2s easeInOut, Reduce Motion 시 즉시</td><td><code>.animation(reduceMotion ? nil : .easeInOut(1.2))</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 style="margin-top:36px"><span class="num">6</span> 접근성 매트릭스</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>시스템 설정</th><th>앱 동작</th><th>검증</th></tr></thead>
+    <tbody>
+      <tr><td>투명도 슬라이더(iOS 27) / Reduce Transparency</td><td>글래스가 자동으로 불투명 재질로 대체. 배지·도크 텍스트 대비를 슬라이더 최소·최대 양끝에서 4.5:1 이상 확보(디밍 10%가 이를 담당)</td><td>Joy: 슬라이더 0·50·100 × 프리셋 11 스크린샷</td></tr>
+      <tr><td>Increase Contrast</td><td>배지·도크·타일 테두리 white 45%→80%, 작은 텍스트 불투명도 1.0</td><td>대비 측정</td></tr>
+      <tr><td>Reduce Motion</td><td>파티클·글로우 호흡·구름 흐름 정지, 배경 크로스페이드 즉시, 시트 전환은 시스템 기본(크로스디졸브)</td><td>실기기</td></tr>
+      <tr><td>Dynamic Type AX1~AX5</td><td>레이아웃 재배치(§4). 온도 96pt 상한, 도크 도시명 말줄임</td><td>Xcode 프리뷰 매트릭스</td></tr>
+      <tr><td>VoiceOver</td><td>홈 한 문장 요약 "부산, 구름많음, 21도, 체감 23도, 갱신 5분 전". 배경색은 장식(<code>.accessibilityHidden</code>), 아이콘은 라벨 병행. 시트 요소는 논리 순서</td><td>VoiceOver 로터 점검</td></tr>
+      <tr><td>Differentiate Without Color</td><td>이미 만족: 상태는 배지 텍스트, 날씨는 라벨</td><td>—</td></tr>
+      <tr><td>햅틱 끄기 / 저전력</td><td>sensoryFeedback 자동 무시, 환경음 크로스페이드 유지</td><td>설정 토글 비활성 확인</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 style="margin-top:36px"><span class="num">7</span> 앱 아이콘</h2>
+  <div class="cols">
+    <div>
+      <p><b>Icon Composer 3레이어.</b> 배경 = 컬러 엔진 19° 맑음 주간 팔레트(문서 §2 골든과 동일 스톱), 중간 = 일출·일몰 아치(흰 점선), 전경 = 해(#F6C558). 라이트·다크·클리어·틴트 4종은 Composer가 생성하며, 다크에서는 배경을 야간 팔레트로 교체, 틴트에서는 아치·해만 남긴다. 텍스트 없음, 마스크 밖 여백 없음.</p>
+      <p>iOS 27 리소스 기준 형태 규격은 iOS 26과 같으므로 26용 템플릿을 그대로 쓴다.</p>
+    </div>
+    <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap" id="iconRow"></div>
+  </div>
+
+  <h2 style="margin-top:36px"><span class="num">8</span> SwiftUI 구현 매핑 (Lily)</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>화면 요소</th><th>API</th><th>메모</th></tr></thead>
+    <tbody>
+      <tr><td>배경</td><td><code>LinearGradient(stops:)</code> ← <code>ColorEngine.gradient</code></td><td>기존 이식본 그대로. <code>.ignoresSafeArea()</code></td></tr>
+      <tr><td>대기 효과</td><td><code>Canvas</code> + <code>TimelineView(.animation(paused: reduceMotion))</code></td><td>파티클 상한 P-08</td></tr>
+      <tr><td>배지 행</td><td><code>GlassEffectContainer{ HStack{ ForEach(badges){ Text().glassEffect(.clear, in:.capsule) } } }</code></td><td>Reduce Transparency 자동 대체</td></tr>
+      <tr><td>도크</td><td><code>.safeAreaInset(edge:.bottom){ GlassEffectContainer{…} }</code></td><td>21pt 인셋은 safe area가 처리</td></tr>
+      <tr><td>시트</td><td><code>.sheet(isPresented:){ Detail().presentationDetents([.fraction(0.78), .large]).presentationDragIndicator(.visible) }</code></td><td>닫기 ⓧ는 <code>.toolbar{ ToolbarItem(.topBarTrailing){ Button(role:.close) } }</code></td></tr>
+      <tr><td>다중 도시</td><td><code>ScrollView(.horizontal){ LazyHStack{…} }.scrollTargetBehavior(.paging)</code></td><td><code>.sensoryFeedback(.selection, trigger: cityId)</code></td></tr>
+      <tr><td>도시 선택</td><td><code>NavigationStack{ List{…}.searchable(text:) .swipeActions }</code></td><td><code>.presentationDetents([.large])</code></td></tr>
+      <tr><td>설정</td><td><code>Form{ Section{ Picker(.segmented) } Section{ Toggle; Slider } … #if DEBUG Section{…} #endif }</code></td><td>Link로 출처</td></tr>
+      <tr><td>햅틱</td><td><code>.sensoryFeedback(.impact(weight:.heavy), trigger: thunderTick)</code> 등 C12 표</td><td>Core Haptics는 필요 없음(시스템 타입으로 충분)</td></tr>
+      <tr><td>환경음</td><td><code>AVAudioSession.setCategory(.ambient)</code>, <code>AVAudioPlayer</code> 2트랙 + 볼륨 램프 1.2s</td><td><code>scenePhase</code> 변화 시 정지</td></tr>
+      <tr><td>아이콘</td><td>Icon Composer <code>.icon</code> 번들</td><td>Xcode 26+</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 style="margin-top:36px"><span class="num">9</span> Mateus 결정 (2026-09-14)</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>ID</th><th>결정</th><th>사유 · 후속</th></tr></thead>
+    <tbody>
+      <tr><td>D10-1</td><td><b>도크 도입, 좌표 문자열 유지.</b> 좌표는 도크의 위치 칩 안에 모노스페이스 Caption 2로 들어가고, 도시명·국가는 콘텐츠 층에 남는다</td><td>좌표는 "이 색이 어느 지점의 날씨인가"라는 출처 표시라 P-09 그대로. 도크에 넣으면 도시명 중복 없이 위치 출처(GPS/기본/즐겨찾기)와 한 묶음이 된다. AX 큰 글씨에서는 좌표부터 숨긴다</td></tr>
+      <tr><td>D10-2</td><td><b>웹도 도크로 통일</b></td><td>정보 구조·QA 시나리오를 플랫폼마다 따로 두지 않기 위해. 웹은 커스텀 핸들을 도크로 교체(글래스는 backdrop-filter로 근사). Lisiena, 화면설계서 SCR-01 #6·#7 갱신</td></tr>
+      <tr><td>D10-3</td><td><b>날씨 커스텀 심볼 세트 제작 승인</b> (Cecilia, 2일)</td><td>SF Symbols 앱 템플릿으로 11종 × 강도 3변형. 웹 SVG와 같은 원본을 쓰므로 플랫폼 간 아이콘 일치. Android는 VectorDrawable로 같은 원본 내보내기</td></tr>
+      <tr><td>D10-4</td><td><b>최소 지원 iOS 27</b></td><td>비공개 배포 대상이 팀 기기뿐이고, 27의 글래스 테두리·시트 닫기 버튼·스크롤 가장자리 개선을 그대로 쓰기 위해. `app/ios` Deployment Target 27.0. 공개 배포 시 재검토</td></tr>
+    </tbody>
+  </table></div>
+  <h4>출처</h4>
+  <ul style="font-size:12.5px">
+    <li>Apple Design Resources: <a href="https://developer.apple.com/design/resources/">developer.apple.com/design/resources</a> · iOS 27 리소스 공개(9to5Mac, 2026-06-11)</li>
+    <li>HIG Materials·Typography·Playing haptics·App icons(developer.apple.com/design/human-interface-guidelines)</li>
+    <li>iOS 27 디자인 변경 정리(designfornative), WWDC 2026 Liquid Glass 개선(TechTimes), iOS 26 가이드라인·수치(learnui.design), Liquid Glass 원칙(createwithswift), 접근성 분석(let's dev)</li>
+  </ul>
+</section>
+
+</div>
+<script>
+/* ===== 컬러 엔진 (src/lib/color.js skyStops 와 동일) ===== */
+const ANCHORS=[
+ {t:-15,s:[[8,12,40],[16,36,84],[40,80,132],[96,140,176],[196,200,206],[130,140,168]]},
+ {t:0,s:[[12,20,52],[26,52,104],[58,104,158],[120,168,196],[214,206,196],[150,150,170]]},
+ {t:10,s:[[12,24,60],[26,64,120],[58,120,168],[140,186,198],[238,206,160],[206,160,120]]},
+ {t:19,s:[[12,26,66],[24,72,128],[58,132,172],[176,206,196],[246,204,140],[236,150,80]]},
+ {t:27,s:[[26,30,74],[40,78,134],[120,158,176],[240,200,150],[246,150,78],[226,104,54]]},
+ {t:36,s:[[46,34,82],[96,80,138],[200,150,150],[250,180,120],[245,120,64],[216,58,44]]}];
+const POS=[0,30,52,70,84,100];
+const lerp=(a,b,r)=>a+(b-a)*r, mix=(a,b,r)=>a.map((v,i)=>v+(b[i]-v)*r), grey=c=>{const l=.3*c[0]+.59*c[1]+.11*c[2];return[l,l,l]};
+function buildStops(t){t=Math.max(-15,Math.min(36,t));for(let i=0;i<ANCHORS.length-1;i++){const a=ANCHORS[i],b=ANCHORS[i+1];if(t>=a.t&&t<=b.t){const r=(t-a.t)/(b.t-a.t);return a.s.map((c,k)=>c.map((v,j)=>lerp(v,b.s[k][j],r)))}}return ANCHORS[ANCHORS.length-1].s.map(c=>c.slice())}
+function skyStops(t,w,isDay){let s=buildStops(t);const mute=[0,.06,.18,.34][w.sky]||0,dk=[1,.98,.95,.9][w.sky]||1;if(mute>0)s=s.map(c=>mix(c,grey(c),mute).map(v=>v*dk));
+ const p=w.precip;if(['rain','showers','drizzle','sleet'].includes(p))s=s.map(c=>mix(c,grey(c),.3).map(v=>v*(p==='drizzle'?.78:.68)));
+ if(p==='snow'||p==='sleet')s=s.map((c,i)=>mix(c,[255,255,255],i<3?.16:.3));if(w.fog)s=s.map(c=>mix(c,grey(c),.5).map(v=>v*.92));if(w.storm)s=s.map(c=>c.map(v=>v*.78));
+ if(w.dust){const amt=w.dust===2?.44:.26;s=s.map(c=>mix(mix(c,grey(c),.28),[198,168,112],amt).map(v=>v*.95))}
+ if(isDay===0){const nf=[.4,.45,.5,.55,.64,.6];s=s.map((c,i)=>mix(c,grey(c),.22).map(v=>v*nf[i]))}
+ return s.map(c=>c.map(v=>Math.round(Math.max(0,Math.min(255,v)))))}
+const rgb=c=>`rgb(${c.join(',')})`, hex=c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('');
+const grad=(t,w,d)=>'linear-gradient(180deg,'+skyStops(t,w,d).map((c,i)=>`${rgb(c)} ${POS[i]}%`).join(',')+')';
+const PRESETS={clear:{sky:0},pcloudy:{sky:2},overcast:{sky:3},rain:{sky:3,precip:'rain',inten:2},showers:{sky:2,precip:'showers',inten:2},snow:{sky:3,precip:'snow',inten:2},sleet:{sky:3,precip:'sleet',inten:2},fog:{sky:3,fog:1},storm:{sky:3,precip:'rain',inten:2,storm:1},finedust:{sky:2,dust:1},yellowdust:{sky:2,dust:2}};
+const LABEL={clear:'맑음',pcloudy:'구름많음',overcast:'흐림',rain:'흐림 & 비',showers:'소나기',snow:'흐림 & 눈',sleet:'흐림 & 진눈깨비',fog:'안개',storm:'흐림 & 뇌우',finedust:'구름많음 & 미세먼지',yellowdust:'구름많음 & 황사'};
+const wx=(k,dust)=>({sky:0,precip:'none',inten:2,fog:false,storm:false,dust:0,...PRESETS[k],...(dust?{dust}:{})});
+
+/* ===== 아이콘 ===== */
+const ST='stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+const CLOUD=`<path d="M6 16.3h10a3 3 0 0 0 .3-6 4.5 4.5 0 0 0-8.7-1.1A3.3 3.3 0 0 0 6 16.3z" ${ST}/>`;
+const drops=n=>[8.5,12,15.5].slice(0,n).map(x=>`<line x1="${x}" y1="18.5" x2="${x-1}" y2="21.5" ${ST}/>`).join('');
+const flakes=n=>[8.5,12,15.5].slice(0,n).map(x=>`<circle cx="${x}" cy="20" r="1" fill="#fff" stroke="none"/>`).join('');
+const sun=`<circle cx="12" cy="12" r="4" ${ST}/>`+[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180;return `<line x1="${(12+Math.cos(r)*6.6).toFixed(1)}" y1="${(12+Math.sin(r)*6.6).toFixed(1)}" x2="${(12+Math.cos(r)*8.8).toFixed(1)}" y2="${(12+Math.sin(r)*8.8).toFixed(1)}" ${ST}/>`}).join('');
+function icon(w,isDay){const wrap=i=>`<svg viewBox="0 0 24 24">${i}</svg>`;
+ if(w.dust&&w.precip==='none'&&!w.storm&&!w.fog)return wrap(`<circle cx="16.5" cy="8" r="3" ${ST}/><line x1="4" y1="13.5" x2="17" y2="13.5" ${ST}/><line x1="4" y1="17" x2="20" y2="17" ${ST}/><line x1="6" y1="20.5" x2="18" y2="20.5" ${ST}/>`);
+ if(w.fog)return wrap(`${CLOUD}<line x1="6" y1="19.5" x2="15" y2="19.5" ${ST}/><line x1="9" y1="22" x2="18" y2="22" ${ST}/>`);
+ if(w.storm)return wrap(`${CLOUD}<path d="M12 17.5l-2.2 3.4h2.6L10.6 24" ${ST}/>`);
+ if(w.precip==='rain'||w.precip==='showers')return wrap(CLOUD+drops(w.inten));if(w.precip==='drizzle')return wrap(CLOUD+flakes(2));
+ if(w.precip==='sleet')return wrap(CLOUD+`<line x1="9" y1="18.5" x2="8" y2="21.5" ${ST}/><circle cx="14.5" cy="20" r="1" fill="#fff" stroke="none"/>`);
+ if(w.precip==='snow')return wrap(CLOUD+flakes(w.inten));if(w.sky>=2)return wrap(CLOUD);if(w.sky===1)return wrap(`<circle cx="8.5" cy="9" r="3" ${ST}/>${CLOUD}`);
+ if(isDay===0)return wrap(`<path d="M17 13.5A6 6 0 1 1 11 5.7 4.9 4.9 0 0 0 17 13.5z" ${ST}/>`);return wrap(sun)}
+const GEAR=`<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1" stroke-linecap="round"/></svg>`;
+function arcSvg(t){const W=340,bY=118,x0=48,x1=292,cx=170,rx=122,ry=80;const sx=cx-rx*Math.cos(Math.PI*t),sy=bY-ry*Math.sin(Math.PI*t);
+ return `<svg viewBox="0 0 340 150"><path d="M${x0},${bY} A${rx},${ry} 0 0 1 ${x1},${bY}" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.5 8"/><line x1="14" y1="${bY}" x2="326" y2="${bY}" stroke="rgba(255,255,255,.85)" stroke-width="1.4"/><text x="170" y="104" text-anchor="middle" fill="rgba(255,255,255,.72)" font-size="12.5" letter-spacing="3" font-family="inherit">일출 · 일몰</text><circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="6.5" fill="#F6C558"/><text x="44" y="143" text-anchor="middle" fill="rgba(255,255,255,.9)" font-size="12.5" font-family="inherit">오전 6:12</text><text x="296" y="143" text-anchor="middle" fill="rgba(255,255,255,.9)" font-size="12.5" font-family="inherit">오후 6:40</text></svg>`}
+const BOT=[{t:-10,c:[120,140,180]},{t:0,c:[150,166,196]},{t:10,c:[196,182,178]},{t:18,c:[240,178,120]},{t:24,c:[255,150,78]},{t:30,c:[255,112,58]},{t:38,c:[255,74,52]}];
+function interp(s,t){t=Math.max(s[0].t,Math.min(s[s.length-1].t,t));for(let i=0;i<s.length-1;i++){const a=s[i],b=s[i+1];if(t>=a.t&&t<=b.t){const r=(t-a.t)/(b.t-a.t);return[0,1,2].map(k=>Math.round(lerp(a.c[k],b.c[k],r)))}}return s[s.length-1].c}
+
+/* ===== 폰 목업 ===== */
+const HOURS=[['14',26,10,'clear'],['15',26,10,'clear'],['16',25,20,'pcloudy'],['17',24,40,'showers'],['18',23,60,'rain'],['19',22,60,'rain'],['20',21,30,'overcast'],['21',21,20,'overcast'],['22',20,10,'pcloudy']];
+const DAYS=[['오늘',19,27,'showers'],['화',18,26,'overcast'],['수',17,24,'rain'],['목',17,25,'clear'],['금',19,28,'pcloudy'],['토',12,20,'snow'],['일',16,23,'storm']];
+const CITIES=[['서울','대한민국',21,'pcloudy',1],['부산','대한민국',26,'showers',1],['제주','대한민국',24,'clear',1],['도쿄','일본',25,'rain',1],['싱가포르','싱가포르',30,'storm',1],['모스크바','러시아',-6,'snow',0],['시드니','호주',17,'clear',0]];
+function homeInner(o,badges){const b=badges?`<div class="badges">${badges.map(k=>`<span class="badge ${k}">${({stale:'갱신 지연',delayed:'오래된 데이터',offline:'오프라인',fallback:'대체 데이터',defaultCity:'기본 도시'})[k]}</span>`).join('')}</div>`:'';
+ return `${b}<div class="content"><div><div class="d-time">오후 2:05</div><div class="d-date">9월 14일</div><div class="d-cond">${icon(o.w,o.day)}<span>${LABEL[o.preset]}</span></div><div class="d-temp">${o.t}°</div><div class="d-feels">체감 ${o.t+2}°</div></div><div class="spacer"></div><div class="arc">${arcSvg(.62)}</div><div class="city"><div class="n1">부산</div><div class="n2">대한민국</div><div class="code">KST · 35.18, 129.08</div></div></div><div class="gear">${GEAR}</div><div class="handle"><div class="hl">날씨 상세 ⌃</div><div class="grip"></div></div>`}
+function sheetInner(o={}){const lo=Math.min(...DAYS.map(d=>d[1])),hi=Math.max(...DAYS.map(d=>d[2])),span=hi-lo;
+ return `<div class="sheet"><div class="shandle"></div><div class="stitle">상세 정보</div><div class="metrics"><div class="tile"><div class="tl">바람</div><div class="tv">4 <small>m/s 남</small></div></div><div class="tile"><div class="tl">습도</div><div class="tv">70<small>%</small></div></div><div class="tile"><div class="tl">강수확률</div><div class="tv">60<small>%</small></div></div><div class="tile"><div class="tl">파도</div><div class="tv">${o.coastal?`0.8 <small>m</small>`:`<small>—</small>`}</div></div></div>
+ <div class="hlist">${HOURS.map(h=>`<div class="hcol"><span class="ht">${h[0]}</span>${icon(wx(h[3]),1)}<span class="hv">${h[1]}°</span><span class="hp">${h[2]}%</span></div>`).join('')}</div>
+ <div class="stitle">주간 예보</div>${DAYS.map(d=>`<div class="drow"><span class="dw">${d[0]}</span>${icon(wx(d[3]),1)}<span class="dlo">${d[1]}°</span><span class="track"><span class="fill" style="left:${(d[1]-lo)/span*100}%;width:${Math.max((d[2]-d[1])/span*100,6)}%;background:linear-gradient(90deg,${rgb(interp(BOT,d[1]))},${rgb(interp(BOT,d[2]))})"></span></span><span class="dhi">${d[2]}°</span></div>`).join('')}
+ <div class="attrib">갱신 오후 1:40 · 데이터 출처: 기상청 · 에어코리아 · 천문연 · Open-Meteo</div></div>`}
+function settingsInner(o={}){const rel=o.variant==='release';const chips=k=>Object.keys(PRESETS).map(p=>`<span class="${p===k?'on':''}">${({clear:'맑음',pcloudy:'구름많음',overcast:'흐림',rain:'비',showers:'소나기',snow:'눈',sleet:'진눈깨비',fog:'안개',storm:'뇌우',finedust:'미세먼지',yellowdust:'황사'})[p]}</span>`).join('');
+ return `<div class="settings"><div class="stt"><span>설 정</span><span>×</span></div>${rel?"":`<div class="slabel">컬러 테스트</div><div class="sdesc">기획한 날씨·온도 조합의 배경색을 직접 확인합니다. 값을 바꾸면 화면 색이 바로 반영돼요.</div><div class="tbtn">컬러 테스트 진행 중</div><div class="cl" style="display:flex;justify-content:space-between"><span>온도</span><span>20°</span></div><div class="range"></div><div class="cl">날씨</div><div class="chips">${chips('clear')}</div><div class="cl">시간대</div><div class="chips"><span class="on">주간</span><span>야간</span></div>`}<div class="slabel" style="margin-top:8px">언어</div><div class="chips"><span class="on">한국어</span><span>English</span></div><div class="slabel" style="margin-top:6px">환경음 · 햅틱</div><div class="chips"><span>환경음 꺼짐</span><span class="on">햅틱 켜짐</span></div><div class="src">데이터 출처 · 기상청 · 에어코리아 · 천문연 · Open-Meteo</div></div>`}
+
+
+/* ===== 추가 화면: 도시 선택(검색 변형) · 상태 오버레이 · 권한 안내 ===== */
+function pickerInner(o){const searching=o.variant==='search';const list=searching?CITIES.filter(c=>c[0].startsWith('시')||c[1]==='일본'):CITIES;
+ return `<div class="picker"><div class="search" style="${searching?'border-color:#fff;opacity:1':''}">${searching?'시|':'도시 검색 · Seoul, 東京 …'}</div>${list.map(c=>`<div class="crow"><span class="sw" style="background:${grad(c[2],wx(c[3]),c[4])}"></span><span class="cn">${c[0]}<small>${c[1]} · ${c[4]?'오후':'오전'} ${c[4]?'2:05':'8:05'}</small></span><span class="ct">${c[2]<0?'−':''}${Math.abs(c[2])}°</span><span class="pin">${c[0]==='부산'?'현재 위치':(searching?'+ 추가':'')}</span></div>`).join('')}<div class="cnt">${searching?'검색 결과 '+list.length+'건':'즐겨찾기 7 / 10 · 카탈로그 38개 도시'}</div></div>`}
+function statusInner(o){const v=o.variant||'loading';const msg={loading:'위치 확인 중',loading2:'불러오는 중',error:'데이터를 불러오지 못했어요'}[v];
+ return `<div class="stat"><div class="ring" style="${v==='error'?'display:none':''}"></div><div class="msg">${msg}</div><div class="retry" style="${v==='error'?'':'display:none'}">다시 시도</div></div>`}
+function permissionInner(o){const en=o.variant==='en';
+ return `<div class="perm"><div class="pt">${en?'Let’s start with the sky right where you are':'지금 있는 곳의 하늘색부터 보여드릴게요'}</div><div class="pd">${en?'We use your approximate location only to pick the nearest city. Nothing is stored or sent anywhere.':'가장 가까운 도시의 날씨를 고르기 위해 대략적인 위치만 사용합니다. 저장하거나 보내지 않아요.'}</div><div class="pb">${en?'ALLOW LOCATION':'위치 허용하기'}</div><div class="ps">${en?'I’ll pick a city myself':'도시를 직접 고를게요'}</div></div>`}
+
+
+/* ===== iOS(Liquid Glass) 렌더러 ===== */
+const SF_GEAR=`<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>`;
+const BADGE_KO={stale:'갱신 지연',delayed:'오래된 데이터',offline:'오프라인',fallback:'대체 데이터',defaultCity:'기본 도시'};
+function homeInnerIOS(o,badges){
+ const b=badges?`<div class="badges">${badges.map(k=>`<span class="badge ${k}">${BADGE_KO[k]}</span>`).join('')}</div>`:'';
+ return `${b}<div class="content"><div><div class="d-time">오후 2:05</div><div class="d-date">9월 14일 일요일</div><div class="d-cond">${icon(o.w,o.day)}<span>${LABEL[o.preset]}</span></div><div class="d-temp">${o.t}°</div><div class="d-feels">체감 ${o.t+2}°</div></div><div class="spacer"></div><div class="arc">${arcSvg(.62)}</div><div class="city"><div class="n1">부산</div><div class="n2">대한민국</div></div></div>
+ <div class="gear">${SF_GEAR}</div>
+ <div class="dock glass"><span class="lchip"><span class="pinico">◎</span><span>현재 위치</span><span class="coord">KST · 35.18, 129.08</span></span><span class="chev">⌃</span></div><div class="homeind"></div>`}
+function sheetInnerIOS(o){const lo=Math.min(...DAYS.map(d=>d[1])),hi=Math.max(...DAYS.map(d=>d[2])),span=hi-lo;
+ return `<div class="sheet"><div class="shandle"></div><span class="x">×</span><div class="stitle">상세 정보</div><div class="metrics"><div class="tile"><div class="tl">바람</div><div class="tv">4 <small>m/s 남</small></div></div><div class="tile"><div class="tl">습도</div><div class="tv">70<small>%</small></div></div><div class="tile"><div class="tl">강수확률</div><div class="tv">60<small>%</small></div></div><div class="tile"><div class="tl">파도</div><div class="tv">0.8 <small>m</small></div></div></div>
+ <div class="hlist">${HOURS.map(h=>`<div class="hcol"><span class="ht">${h[0]}시</span>${icon(wx(h[3]),1)}<span class="hv">${h[1]}°</span><span class="hp">${h[2]}%</span></div>`).join('')}</div>
+ <div class="stitle">주간 예보</div>${DAYS.map(d=>`<div class="drow"><span class="dw">${d[0]}</span>${icon(wx(d[3]),1)}<span class="dlo">${d[1]}°</span><span class="track"><span class="fill" style="left:${(d[1]-lo)/span*100}%;width:${Math.max((d[2]-d[1])/span*100,6)}%;background:linear-gradient(90deg,${rgb(interp(BOT,d[1]))},${rgb(interp(BOT,d[2]))})"></span></span><span class="dhi">${d[2]}°</span></div>`).join('')}
+ <div class="attrib">갱신 오후 1:40 · 데이터 출처: 기상청 · 에어코리아 · 천문연 · Open-Meteo ↗</div></div><div class="homeind"></div>`}
+function settingsInnerIOS(o){
+ return `<div class="form"><div class="nav"><b>설정</b><span class="x">×</span></div>
+ <div class="grpttl">언어</div><div class="grp"><div class="row"><span>표시 언어</span><span class="seg"><span class="on">한국어</span><span>English</span></span></div></div>
+ <div class="grpttl">환경음 · 햅틱</div><div class="grp"><div class="row"><span>날씨 환경음<span class="sub">홈 화면에서만 재생 · 무음 스위치를 따릅니다</span></span><span class="tog on"></span></div><div class="row"><span>🔈</span><span class="sld"></span><span>🔊</span></div><div class="row"><span>햅틱<span class="sub">도시 전환 · 시트 · 천둥</span></span><span class="tog on"></span></div></div>
+ <div class="grpttl">데이터 출처</div><div class="grp"><div class="row"><span>기상청</span><span style="opacity:.5">›</span></div><div class="row"><span>한국환경공단 에어코리아</span><span style="opacity:.5">↗</span></div><div class="row"><span>한국천문연구원</span><span style="opacity:.5">›</span></div><div class="row"><span>Open-Meteo</span><span style="opacity:.5">↗</span></div></div>
+ <div class="grpttl">컬러 테스트 · DEBUG</div><div class="grp"><div class="row"><span>온도</span><span class="sld"></span><span>20°</span></div><div class="row"><span>날씨</span><span style="opacity:.8">구름많음 ⌄</span></div><div class="row"><span>야간</span><span class="tog"></span></div></div>
+ </div><div class="homeind"></div>`}
+function pickerInnerIOS(o){
+ return `<div class="pick"><div class="lt"><span>도시</span><span class="x">×</span></div><div class="sf glass"><span style="opacity:.7">⌕</span><span style="opacity:.6">검색</span></div>
+ ${CITIES.map((c,i)=>`<div class="crow${i===3?' swiped':''}"><span class="sw" style="background:${grad(c[2],wx(c[3]),c[4])}"></span><span class="cn">${c[0]}<small>${c[1]} · ${c[4]?'오후':'오전'} ${c[4]?'2:05':'8:05'}</small></span><span class="ct">${c[2]<0?'−':''}${Math.abs(c[2])}°</span><span class="pin">${c[0]==='부산'?'현재 위치':''}</span>${i===3?'<span class="del">삭제</span>':''}</div>`).join('')}
+ <div class="cnt">즐겨찾기 7 / 10 · 길게 눌러 순서 변경</div></div><div class="homeind"></div>`}
+
+function renderPhone(el){
+ const kind=el.dataset.phone, ios=el.classList.contains('ios');
+ const o={t:+el.dataset.temp,day:+el.dataset.day,preset:el.dataset.preset,dust:+(el.dataset.dust||0)};const w=wx(o.preset,o.dust);o.w=w;
+ const badges=el.dataset.badges?el.dataset.badges.split(','):null;
+ let inner=`<div class="sky" style="background:${grad(o.t,w,o.day)}"></div>`+(o.day&&w.sky<=2&&!w.fog?'<div class="glow"></div>':'')+`<div class="grain"></div>`;
+ if(ios){inner+=homeInnerIOS(o,badges);if(kind==='sheet')inner+=sheetInnerIOS(o);if(kind==='settings')inner+=settingsInnerIOS(o);if(kind==='picker')inner+=pickerInnerIOS(o)}
+ else{inner+=homeInner(o,badges);if(kind==='sheet')inner+=sheetInner({coastal:true});if(kind==='settings')inner+=settingsInner({});if(kind==='picker')inner+=pickerInner({})}
+ if(el.dataset.pins)inner+=el.dataset.pins.split(';').map(p=>{const[n,xy]=p.split(':');const[x,y]=xy.split(',');return `<span class="pin-n" style="left:${x}px;top:${y}px">${n}</span>`}).join('');
+ el.innerHTML=`<div class="screen">${inner}</div>`}
+document.querySelectorAll('.phone').forEach(renderPhone);
+
+/* 앱 아이콘 4종 */
+(function(){const row=document.getElementById('iconRow');if(!row)return;const g=grad(19,wx('clear'),1), gn=grad(19,wx('clear'),0);
+ const arc=(fill)=>`<svg viewBox="0 0 100 100" style="position:absolute;inset:0"><path d="M18,64 A32,26 0 0 1 82,64" fill="none" stroke="${fill}" stroke-width="2.2" stroke-dasharray="1.5 5" stroke-linecap="round"/><line x1="10" y1="64" x2="90" y2="64" stroke="${fill}" stroke-width="2"/><circle cx="50" cy="38" r="8" fill="#F6C558"/></svg>`;
+ const mk=(bg,lbl,extra='')=>`<div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div style="width:76px;height:76px;border-radius:19px;position:relative;overflow:hidden;background:${bg};box-shadow:0 6px 16px -8px rgba(0,0,0,.5);${extra}">${arc('rgba(255,255,255,.85)')}</div><small style="font-size:11px;color:var(--mute)">${lbl}</small></div>`;
+ row.innerHTML=mk(g,'라이트')+mk(gn,'다크')+mk('rgba(120,130,150,.35)','클리어','backdrop-filter:blur(6px)')+mk('linear-gradient(180deg,#5a6b8a,#2f3a52)','틴트')})();
+</script>
+</body></html>

@@ -1,0 +1,10 @@
+{
+  "editor.formatOnSave": false,
+  "editor.tabSize": 2,
+  "files.eol": "\n",
+  "files.exclude": { "**/node_modules": true, "**/_to_delete": true, "**/dist": true, "**/.vite-check": true },
+  "search.exclude": { "**/node_modules": true, "**/_to_delete": true, "**/dist": true, "frontend/spec/color-engine.json": true },
+  "[swift]": { "editor.tabSize": 4 },
+  "[kotlin]": { "editor.tabSize": 4 },
+  "npm.packageManager": "npm"
+}

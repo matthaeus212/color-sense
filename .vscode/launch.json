@@ -1,0 +1,8 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    { "name": "Mock BFF", "type": "node", "request": "launch", "program": "${workspaceFolder}/backend/mock-bff/server.mjs", "env": { "PORT": "8787" } },
+    { "name": "Web (Chrome, mock)", "type": "chrome", "request": "launch", "url": "http://localhost:5173/?city=KR-PUS&scenario=stale", "webRoot": "${workspaceFolder}/frontend" }
+  ],
+  "compounds": [ { "name": "Web + Mock BFF", "configurations": ["Mock BFF", "Web (Chrome, mock)"] } ]
+}

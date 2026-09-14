@@ -1,0 +1,671 @@
+<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"></head><body><title>ColorSense 기획·화면설계서</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+  :root{
+    --bg:#f6f5f1; --bg2:#ffffff; --surface:#ecebe5; --line:#dcdad2; --line2:#c4c1b6;
+    --ink:#1d2129; --ink2:#454b57; --mute:#7a8090; --accent:#c9782f; --accent-ink:#8a4d13; --accent2:#3f6fa8;
+    --good:#2f8f5b; --warn:#b98514; --bad:#b9472f; --phone-shadow:rgba(20,24,32,.35);
+    --display:"Outfit","Noto Sans KR",-apple-system,sans-serif; --body:"Noto Sans KR",-apple-system,sans-serif; --mono:"JetBrains Mono",ui-monospace,monospace;
+  }
+  @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+    --bg:#13161d; --bg2:#1a1e27; --surface:#20252f; --line:#2c323d; --line2:#3d4452; --ink:#e8ebf1; --ink2:#b3bac6; --mute:#7f8797; --accent:#e9a95f; --accent-ink:#f2c48a; --accent2:#7fa8dc; --good:#6fc48f; --warn:#e0b04a; --bad:#e08a7c; --phone-shadow:rgba(0,0,0,.8)}}
+  :root[data-theme="dark"]{
+    --bg:#13161d; --bg2:#1a1e27; --surface:#20252f; --line:#2c323d; --line2:#3d4452; --ink:#e8ebf1; --ink2:#b3bac6; --mute:#7f8797; --accent:#e9a95f; --accent-ink:#f2c48a; --accent2:#7fa8dc; --good:#6fc48f; --warn:#e0b04a; --bad:#e08a7c; --phone-shadow:rgba(0,0,0,.8)}
+  *{box-sizing:border-box;margin:0}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);font-weight:400;line-height:1.75;font-size:14px;padding-block:0 96px;padding-inline:clamp(16px,4vw,48px)}
+  a{color:var(--accent-ink)}
+  h1,h2,h3,h4{font-family:var(--display);text-wrap:balance;line-height:1.25;font-weight:500}
+  h2{font-size:24px;margin-bottom:4px}
+  h3{font-size:17px;margin:28px 0 10px;padding-left:10px;border-left:3px solid var(--accent)}
+  h4{font-size:14px;margin:18px 0 8px;color:var(--ink2)}
+  p{max-width:72ch;color:var(--ink2)}
+  p b,li b{color:var(--ink);font-weight:500}
+  ul{padding-left:18px;color:var(--ink2);max-width:72ch}
+  code{font-family:var(--mono);font-size:12px;background:var(--surface);padding:1px 6px;border-radius:4px;color:var(--ink)}
+  .wrap{max-width:1180px;margin:0 auto}
+  .num{font-family:var(--mono);color:var(--accent-ink);font-size:12px;letter-spacing:1px}
+  .eyebrow{font-family:var(--display);font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--accent-ink);margin-bottom:8px}
+  section{padding-block:44px;border-top:1px solid var(--line)}
+  .cover{padding-block:56px 36px;border-top:0;display:grid;grid-template-columns:1fr auto;gap:32px;align-items:end}
+  .cover h1{font-size:clamp(30px,4.5vw,46px);font-weight:400;letter-spacing:-.5px}
+  .cover .sub{font-size:16px;margin-top:10px;color:var(--ink2)}
+  .docmeta{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;font-size:12.5px;color:var(--ink2);border:1px solid var(--line);padding:14px 18px;background:var(--bg2);min-width:280px}
+  .docmeta dt{font-family:var(--display);color:var(--mute);letter-spacing:1px;font-size:11px;text-transform:uppercase}
+  .toc{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:6px 28px;font-size:13px;counter-reset:none}
+  .toc a{text-decoration:none;color:var(--ink2);display:flex;gap:10px;padding:5px 0;border-bottom:1px dashed var(--line)}
+  .toc a span{font-family:var(--mono);color:var(--accent-ink);font-size:11px;min-width:34px}
+  .toc a:hover{color:var(--ink)}
+  table{border-collapse:collapse;width:100%;font-size:12.8px;background:var(--bg2)}
+  th,td{text-align:left;padding:9px 11px;border:1px solid var(--line);vertical-align:top;color:var(--ink2)}
+  th{font-family:var(--display);font-weight:500;font-size:11.5px;letter-spacing:1px;color:var(--ink);background:var(--surface);white-space:nowrap}
+  td:first-child{font-family:var(--mono);font-size:11.5px;color:var(--accent-ink);white-space:nowrap}
+  .tablewrap{overflow-x:auto;margin:10px 0 6px}
+  .pri{display:inline-block;font-family:var(--mono);font-size:10.5px;padding:1px 7px;border-radius:3px;border:1px solid var(--line2)}
+  .pri.m{background:var(--accent);color:#fff;border-color:var(--accent)}
+  .pri.s{background:var(--surface)}
+  .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px}
+  .callout{border:1px solid var(--line);border-left:3px solid var(--accent2);background:var(--bg2);padding:12px 16px;font-size:13px;color:var(--ink2);max-width:80ch}
+  .kpi{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:12px}
+  .kpi div{background:var(--bg2);padding:14px 16px}
+  .kpi b{display:block;font-family:var(--display);font-size:22px;font-weight:400;color:var(--ink)}
+  .kpi small{color:var(--mute);font-size:12px}
+  /* diagrams */
+  .dia svg{width:100%;height:auto;display:block;max-width:1100px}
+  .dia text{font-family:var(--body);fill:var(--ink2);font-size:12px}
+  .dia .lbl{fill:var(--mute);font-size:10.5px}
+  .dia .box{fill:var(--bg2);stroke:var(--line2)}
+  .dia .key{fill:var(--surface);stroke:var(--accent)}
+  .dia .dec{fill:var(--bg2);stroke:var(--accent2)}
+  .dia path,.dia line{fill:none;stroke:var(--line2);stroke-width:1.2;marker-end:url(#ar)}
+  .dia .ia line{marker-end:none;stroke:var(--line2)}
+  /* screens */
+  .scr{display:grid;grid-template-columns:300px 1fr;gap:28px;align-items:start;margin-top:12px}
+  .scrhead{display:flex;flex-wrap:wrap;gap:8px 18px;align-items:baseline;margin-top:34px;padding-top:26px;border-top:1px dashed var(--line2)}
+  .scrhead h3{margin:0;border:0;padding:0;font-size:19px}
+  .scrhead .id{font-family:var(--mono);color:var(--accent-ink);font-size:12px}
+  .scrhead .goal{color:var(--mute);font-size:13px;flex-basis:100%}
+  .variants{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 4px}
+  .variants button{background:var(--bg2);border:1px solid var(--line2);color:var(--ink2);font-family:var(--body);font-size:12px;padding:5px 10px;border-radius:999px;cursor:pointer}
+  .variants button.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+  .variants button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .phonewrap{display:flex;flex-direction:column;align-items:center;gap:10px;position:sticky;top:16px}
+  .phonewrap small{color:var(--mute);font-size:11.5px;text-align:center}
+  .pin-n{position:absolute;width:16px;height:16px;border-radius:50%;background:var(--accent);color:#fff;font-size:9px;font-weight:500;display:flex;align-items:center;justify-content:center;font-family:var(--display);box-shadow:0 0 0 2px rgba(255,255,255,.7);z-index:5}
+  .phone{box-shadow:0 30px 70px -30px var(--phone-shadow),0 0 0 1.5px rgba(255,255,255,.05) inset}
+  @media (max-width:820px){.cover{grid-template-columns:1fr}.scr{grid-template-columns:1fr}.phonewrap{position:static}}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+  @media print{body{padding:0;font-size:11.5px}.phonewrap{position:static}section{break-inside:avoid-page}}
+  /* status overlay · permission (spec-only) */
+  .stat{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;background:rgba(10,14,20,.25);text-align:center;padding:24px}
+  .stat .ring{width:26px;height:26px;border:2px solid rgba(255,255,255,.25);border-top-color:#fff;border-radius:50%}
+  .stat .msg{font-size:9px;letter-spacing:2.5px;font-weight:300;text-transform:uppercase;opacity:.9}
+  .stat .retry{border:1px solid rgba(255,255,255,.4);font-size:8px;letter-spacing:1.5px;padding:7px 14px;border-radius:999px;text-transform:uppercase}
+  .perm{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:36px 24px 44px;gap:10px;background:linear-gradient(180deg,rgba(0,0,0,0) 30%,rgba(0,0,0,.35))}
+  .perm .pt{font-size:15px;font-weight:300;line-height:1.35;letter-spacing:.5px}
+  .perm .pd{font-size:8.5px;opacity:.85;line-height:1.55;margin-bottom:14px}
+  .perm .pb{background:#fff;color:#12161f;font-size:9px;letter-spacing:1.5px;padding:11px;border-radius:12px;text-align:center;font-weight:600}
+  .perm .ps{font-size:8.5px;letter-spacing:1px;opacity:.8;text-align:center;padding:8px}
+  /* phone (shared with design spec) */
+  
+  .phone{width:270px;height:570px;border-radius:40px;padding:9px;background:linear-gradient(160deg,#20252f,#0b0e13);box-shadow:0 30px 70px -30px rgba(0,0,0,.9),0 0 0 1.5px rgba(255,255,255,.05) inset;flex-shrink:0;font-family:var(--display)}
+  .screen{position:relative;width:100%;height:100%;border-radius:32px;overflow:hidden;background:#333;color:#fff}
+  .sky{position:absolute;inset:0;transition:background .8s ease}
+  .grain{position:absolute;inset:0;opacity:.05;background-image:radial-gradient(rgba(255,255,255,.9) .5px,transparent .6px);background-size:3px 3px;pointer-events:none}
+  .content{position:absolute;inset:0;display:flex;flex-direction:column;padding:42px 22px 52px}
+  .d-time,.d-date,.d-cond{font-size:11px;letter-spacing:2.5px;font-weight:300;opacity:.95}
+  .d-cond{display:flex;align-items:center;gap:6px;margin-top:2px}
+  .d-cond svg{width:15px;height:15px}
+  .d-temp{font-size:60px;font-weight:200;line-height:1;margin-top:12px}
+  .d-feels{font-size:10px;letter-spacing:1.5px;opacity:.8;margin-top:6px}
+  .spacer{flex:1}
+  .arc svg{width:100%;height:auto;display:block;overflow:visible}
+  .city{text-align:center}
+  .city .n1{font-size:15px;letter-spacing:5px;font-weight:200}
+  .city .n2{font-size:15px;letter-spacing:5px;font-weight:200}
+  .city .code{font-size:7px;letter-spacing:2px;opacity:.55;margin-top:6px}
+  .gear{position:absolute;top:15px;right:15px;width:26px;height:26px;border-radius:50%;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center}
+  .gear svg{width:13px;height:13px}
+  .handle{position:absolute;left:0;right:0;bottom:11px;display:flex;flex-direction:column;align-items:center;gap:5px}
+  .handle .hl{font-size:7px;letter-spacing:2px;opacity:.7}
+  .handle .grip{width:30px;height:3px;border-radius:3px;background:rgba(255,255,255,.55)}
+  .badges{position:absolute;top:16px;left:22px;display:flex;gap:4px;flex-wrap:wrap}
+  .badge{font-size:6.5px;letter-spacing:1.5px;text-transform:uppercase;padding:4px 7px;border-radius:999px;background:rgba(0,0,0,.28);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(8px)}
+  .badge.delayed,.badge.offline{background:rgba(120,40,40,.45)}
+  .stars{position:absolute;inset:0;pointer-events:none}
+  .star{position:absolute;background:#fff;border-radius:50%;box-shadow:0 0 3px rgba(255,255,255,.6)}
+  .glow{position:absolute;left:50%;top:56%;width:160px;height:160px;transform:translateX(-50%);border-radius:50%;filter:blur(10px);background:radial-gradient(circle,rgba(255,240,208,.5),rgba(255,214,160,0) 70%);pointer-events:none}
+  /* sheet */
+  .sheet{position:absolute;left:0;right:0;bottom:0;height:78%;background:rgba(28,32,42,.22);backdrop-filter:blur(24px) saturate(1.25);border-top:1px solid rgba(255,255,255,.22);border-radius:24px 24px 32px 32px;padding:9px 18px 16px;display:flex;flex-direction:column;overflow:hidden;font-size:9px}
+  .shandle{width:30px;height:3px;border-radius:3px;background:rgba(255,255,255,.4);margin:0 auto 10px}
+  .stitle{font-size:8px;letter-spacing:2.5px;opacity:.6;text-transform:uppercase;margin-bottom:8px}
+  .metrics{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:12px}
+  .tile{background:rgba(255,255,255,.13);border:1px solid rgba(255,255,255,.2);border-radius:12px;padding:8px 10px}
+  .tile .tl{font-size:7px;letter-spacing:1.5px;opacity:.65;text-transform:uppercase}
+  .tile .tv{font-size:15px;font-weight:200;margin-top:4px}
+  .tile .tv small{font-size:8px;opacity:.6}
+  .hlist{display:flex;gap:9px;overflow:hidden;padding-bottom:8px;margin-bottom:6px}
+  .hcol{display:flex;flex-direction:column;align-items:center;gap:3px;min-width:24px}
+  .hcol .ht{font-size:7px;opacity:.65}.hcol svg{width:14px;height:14px}.hcol .hv{font-size:9px}.hcol .hp{font-size:6.5px;opacity:.6}
+  .drow{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.08)}
+  .drow .dw{width:26px;font-size:9px}.drow svg{width:14px;height:14px}.drow .dlo{width:18px;text-align:right;opacity:.6}.drow .dhi{width:18px;font-weight:500}
+  .drow .track{flex:1;height:4px;border-radius:99px;background:rgba(255,255,255,.14);position:relative}.drow .fill{position:absolute;height:100%;border-radius:99px}
+  .attrib{font-size:6.5px;opacity:.55;margin-top:auto;line-height:1.5}
+  /* settings */
+  .settings{position:absolute;inset:0;background:rgba(24,28,38,.28);backdrop-filter:blur(24px) saturate(1.2);padding:36px 20px;font-size:9px}
+  .settings .stt{font-size:10px;letter-spacing:2.5px;margin-bottom:18px;display:flex;justify-content:space-between}
+  .slabel{font-size:9px;letter-spacing:2px;font-weight:500;margin-bottom:4px}
+  .sdesc{font-size:8px;opacity:.72;margin-bottom:10px;line-height:1.5}
+  .tbtn{background:#fff;color:#12161f;font-size:9px;letter-spacing:1.5px;padding:10px;border-radius:10px;text-align:center;font-weight:600;margin-bottom:14px}
+  .chips{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px}
+  .chips span{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:rgba(255,255,255,.72);font-size:8px;letter-spacing:1px;padding:5px 9px;border-radius:999px}
+  .chips span.on{background:#fff;color:#12161f;border-color:#fff}
+  .cl{font-size:7px;letter-spacing:1.5px;opacity:.62;margin-bottom:6px;text-transform:uppercase}
+  .range{height:3px;border-radius:2px;background:linear-gradient(90deg,#fff 55%,rgba(255,255,255,.3) 55%);margin:8px 0 14px;position:relative}
+  .range::after{content:"";position:absolute;left:55%;top:-4px;width:11px;height:11px;border-radius:50%;background:#fff}
+  .src{font-size:6.5px;opacity:.55;margin-top:10px;line-height:1.5}
+  /* city picker */
+  .picker{position:absolute;inset:0;background:rgba(18,22,30,.55);backdrop-filter:blur(24px);padding:36px 18px;font-size:9px}
+  .search{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:9px 12px;font-size:9px;letter-spacing:1px;opacity:.9;margin-bottom:14px}
+  .crow{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid rgba(255,255,255,.08)}
+  .crow .sw{width:22px;height:22px;border-radius:7px;flex-shrink:0}
+  .crow .cn{flex:1;letter-spacing:1px}.crow .cn small{display:block;font-size:7px;opacity:.55;letter-spacing:.5px}
+  .crow .ct{font-size:10px;font-weight:300}
+  .crow .pin{font-size:7px;opacity:.5;letter-spacing:1px}
+  .cnt{font-size:7px;opacity:.55;letter-spacing:1px;margin-top:10px;text-align:center}
+
+.wdock{position:absolute;left:14px;right:14px;bottom:14px;height:34px;border-radius:999px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 12px;font-size:9px;letter-spacing:.5px;font-weight:400;background:rgba(20,24,32,.28);border:1px solid rgba(255,255,255,.35);backdrop-filter:blur(12px) saturate(1.4);-webkit-backdrop-filter:blur(12px) saturate(1.4)}
+.wdock .lchip{display:flex;align-items:center;gap:6px;min-width:0}.wdock .pinico{opacity:.9}
+.wdock .coord{font-family:ui-monospace,Menlo,monospace;font-size:7px;opacity:.7;letter-spacing:0;white-space:nowrap}
+.wdock .chev{width:24px;height:24px;border-radius:50%;background:rgba(255,255,255,.22);display:flex;align-items:center;justify-content:center;font-size:10px}
+</style>
+<div class="wrap">
+
+<section class="cover">
+  <div>
+    <div class="eyebrow">Planning &amp; Screen Specification</div>
+    <h1>ColorSense 기획·화면설계서</h1>
+    <p class="sub">날씨를 색으로 보여주는 앱의 목표·범위·기능·정책과, 화면 6종의 구성 요소·동작·예외를 정의한다. 개발·디자인·QA가 같은 문서를 근거로 일한다.</p>
+  </div>
+  <dl class="docmeta">
+    <dt>문서 버전</dt><dd>v1.2 · 2026-09-14 (하단 도크·좌표 유지 D10)</dd>
+    <dt>작성</dt><dd>Mateus (기획·아키텍처)</dd>
+    <dt>검토</dt><dd>Cecilia · Theo · Lisiena · Lily · Joy · Mark</dd>
+    <dt>상태</dt><dd>1차 범위 확정, 구현 진행 중</dd>
+    <dt>근거</dt><dd><code>planning/05-decisions.md</code> D1~D7</dd>
+  </dl>
+</section>
+
+<section style="padding-top:20px">
+  <div class="toc">
+    <a href="#s1"><span>1</span>개요와 목표</a><a href="#s2"><span>2</span>범위</a><a href="#s3"><span>3</span>사용자와 시나리오</a><a href="#s4"><span>4</span>정보 구조</a>
+    <a href="#s5"><span>5</span>사용자 흐름</a><a href="#s6"><span>6</span>기능 정의</a><a href="#s7"><span>7</span>정책 정의</a><a href="#s8"><span>8</span>데이터 정의</a><a href="#s9"><span>9</span>비기능 요구</a>
+    <a href="#scr"><span>10</span>화면 목록</a><a href="#scr01"><span>10.1</span>SCR-01 홈</a><a href="#scr02"><span>10.2</span>SCR-02 상세 시트</a><a href="#scr03"><span>10.3</span>SCR-03 도시 선택</a>
+    <a href="#scr04"><span>10.4</span>SCR-04 설정</a><a href="#scr05"><span>10.5</span>SCR-05 상태 오버레이</a><a href="#scr06"><span>10.6</span>SCR-06 위치 권한 안내</a><a href="#s11"><span>11</span>용어·참조</a><a href="#s12"><span>12</span>기술 스택</a>
+  </div>
+</section>
+
+<!-- ===================== 기획 설계 ===================== -->
+<section id="s1">
+  <div class="eyebrow">Part A · 기획 설계</div>
+  <h2><span class="num">1</span> 개요와 목표</h2>
+  <p><b>제품 정의.</b> ColorSense는 도시의 현재 날씨를 숫자보다 먼저 <b>배경색</b>으로 전달하는 날씨 앱이다. 온도·구름량·강수·안개·뇌우·황사·주야가 하나의 그라데이션으로 합성되고, 정확한 수치는 화면을 쓸어 올리면 나온다.</p>
+  <p><b>프로젝트 목표.</b> 각 나라 주요 도시의 정확한 날씨를 제공하는, 완성도 높고 아름답게 디자인된 앱. 1차 런칭은 한국 주요 도시를 기상청 데이터로, 해외 소수 도시를 Open-Meteo 무료 티어로 제공한다.</p>
+  <h4>성공 기준 (1차, 비공개 배포)</h4>
+  <div class="kpi">
+    <div><b>±1</b><small>웹·iOS·Android 배경색 채널 오차 (골든 154건)</small></div>
+    <div><b>≤ 3h</b><small>데이터 최대 나이. 초과 시 "오래된 데이터" 배지</small></div>
+    <div><b>0건</b><small>오류를 정상값으로 둔갑시키는 화면 (내륙·좋음 등)</small></div>
+    <div><b>≤ 2.9k/일</b><small>외부 API 호출 (무료 한도 10k 안)</small></div>
+    <div><b>100%</b><small>라벨이 기상청 용어와 일치</small></div>
+    <div><b>0</b><small>음향·햅틱만으로 전달되는 정보 (항상 색·라벨과 중복)</small></div>
+  </div>
+</section>
+
+<section id="s2">
+  <h2><span class="num">2</span> 범위</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>구분</th><th>1차 (이번 릴리스)</th><th>2차 (다음)</th><th>제외</th></tr></thead>
+    <tbody>
+      <tr><td>도시</td><td>한국 20개(기상청) + 해외 18개(Open-Meteo), 카탈로그 관리</td><td>국가·도시 확장(카탈로그 행 추가), 도시 정렬</td><td>임의 좌표 검색, 역지오코딩</td></tr>
+      <tr><td>데이터</td><td>현재·체감·시간별 24h·일별 7일·습도·바람·강수확률·일출몰·미세먼지/황사</td><td>파도, 자외선, 기상특보 푸시</td><td>레이더·위성 영상</td></tr>
+      <tr><td>감각 피드백</td><td>날씨별 환경음(앰비언트 루프 + 천둥 원샷), 햅틱(도시 전환·시트·천둥·강수 강도)</td><td>사용자 커스텀 사운드 팩, 시간대별 새소리</td><td>음성 안내, 음악 스트리밍</td></tr>
+      <tr><td>화면</td><td>홈, 상세 시트, 도시 선택, 설정(컬러 테스트는 디버그), 상태 오버레이, 권한 안내</td><td>홈 위젯, 다중 도시 좌우 스와이프 애니메이션 고도화</td><td>Apple Watch·Wear OS</td></tr>
+      <tr><td>플랫폼</td><td>웹(React), iOS(SwiftUI), Android(Compose)</td><td>—</td><td>Flutter·RN</td></tr>
+      <tr><td>계정</td><td>없음. 즐겨찾기 로컬 저장</td><td>계정·동기화</td><td>소셜 로그인</td></tr>
+      <tr><td>배포</td><td>TestFlight·내부 트랙·접근 제한 웹. 광고·결제 없음</td><td>스토어 공개(데이터 계약 재검토와 함께)</td><td>—</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s3">
+  <h2><span class="num">3</span> 사용자와 시나리오</h2>
+  <div class="cols">
+    <div><h4>U1 · 출근길 확인자</h4><p>아침에 잠금 해제 직후 앱을 연다. 색만 보고 우산·외투를 결정하고, 강수확률이 궁금할 때만 시트를 올린다. 중요한 것은 <b>첫 화면이 1초 안에 의미를 전달</b>하는 것과 정보가 오래되지 않았다는 확신.</p></div>
+    <div><h4>U2 · 해외 가족·출장 준비자</h4><p>서울과 도쿄·시드니를 즐겨찾기에 두고 현지 시각과 함께 비교한다. 해외 데이터가 예측값임을 알고 싶어 하며, 영하 도시와 열대 도시의 색이 확실히 달라야 한다.</p></div>
+    <div><h4>U3 · 팀 내부 검수자 (QA·디자인)</h4><p>컬러 테스트로 프리셋·온도·주야 조합을 확인하고 골든 케이스와 대조한다. 모의 BFF 시나리오로 배지·오류 상태를 재현한다. 공개 빌드에서는 이 기능이 보이지 않아야 한다.</p></div>
+  </div>
+</section>
+
+<section id="s4">
+  <h2><span class="num">4</span> 정보 구조</h2>
+  <p>화면은 홈을 중심으로 세 방향(위로 상세, 위에서 설정, 좌우로 도시)으로 뻗는 단층 구조다. 깊이가 없으므로 내비게이션 바가 없다.</p>
+  <div class="dia"><svg viewBox="0 0 1100 260" role="img" aria-label="정보 구조도">
+    <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#9a9a9a" stroke="none"/></marker></defs>
+    <g class="ia">
+      <rect class="key" x="470" y="20" width="160" height="46" rx="4"/><text x="550" y="42" text-anchor="middle">SCR-01 홈</text><text x="550" y="58" text-anchor="middle" class="lbl">현재 도시 · 배경색 · 온도</text>
+      <line x1="550" y1="66" x2="550" y2="110"/><line x1="150" y1="110" x2="950" y2="110"/>
+      <line x1="150" y1="110" x2="150" y2="140"/><line x1="350" y1="110" x2="350" y2="140"/><line x1="550" y1="110" x2="550" y2="140"/><line x1="750" y1="110" x2="750" y2="140"/><line x1="950" y1="110" x2="950" y2="140"/>
+      <rect class="box" x="70" y="140" width="160" height="46" rx="4"/><text x="150" y="162" text-anchor="middle">SCR-02 상세 시트</text><text x="150" y="178" text-anchor="middle" class="lbl">↑ 스와이프 · 타일·시간별·주간</text>
+      <rect class="box" x="270" y="140" width="160" height="46" rx="4"/><text x="350" y="162" text-anchor="middle">SCR-03 도시 선택</text><text x="350" y="178" text-anchor="middle" class="lbl">도시명 탭 · 검색·즐겨찾기</text>
+      <rect class="box" x="470" y="140" width="160" height="46" rx="4"/><text x="550" y="162" text-anchor="middle">SCR-04 설정</text><text x="550" y="178" text-anchor="middle" class="lbl">⚙ · 언어·출처·(디버그) 컬러 테스트</text>
+      <rect class="box" x="670" y="140" width="160" height="46" rx="4"/><text x="750" y="162" text-anchor="middle">SCR-05 상태 오버레이</text><text x="750" y="178" text-anchor="middle" class="lbl">로딩·오류·재시도</text>
+      <rect class="box" x="870" y="140" width="160" height="46" rx="4"/><text x="950" y="162" text-anchor="middle">SCR-06 권한 안내</text><text x="950" y="178" text-anchor="middle" class="lbl">첫 실행 1회</text>
+      <line x1="350" y1="186" x2="350" y2="214"/><rect class="box" x="270" y="214" width="160" height="36" rx="4"/><text x="350" y="237" text-anchor="middle" class="lbl">홈 ⇄ 좌우 스와이프로 즐겨찾기 순회</text>
+    </g>
+  </svg></div>
+</section>
+
+<section id="s5">
+  <h2><span class="num">5</span> 사용자 흐름</h2>
+  <p>첫 실행부터 홈까지의 흐름. 위치가 없어도 막히지 않고, 데이터가 없어도 마지막 값으로 화면을 그린다.</p>
+  <div class="dia"><svg viewBox="0 0 1100 330" role="img" aria-label="사용자 흐름도">
+    <rect class="box" x="20" y="30" width="120" height="44" rx="22"/><text x="80" y="57" text-anchor="middle">앱 실행</text>
+    <path d="M140 52 L 185 52"/>
+    <rect class="dec" x="185" y="20" width="150" height="64" rx="6"/><text x="260" y="48" text-anchor="middle">첫 실행?</text><text x="260" y="66" text-anchor="middle" class="lbl">즐겨찾기 없음</text>
+    <path d="M335 52 L 385 52"/><text x="360" y="44" text-anchor="middle" class="lbl">예</text>
+    <rect class="box" x="385" y="30" width="150" height="44" rx="4"/><text x="460" y="57" text-anchor="middle">SCR-06 권한 안내</text>
+    <path d="M535 52 L 585 52"/>
+    <rect class="dec" x="585" y="20" width="150" height="64" rx="6"/><text x="660" y="48" text-anchor="middle">위치 허용?</text><text x="660" y="66" text-anchor="middle" class="lbl">사용 중 · 대략적</text>
+    <path d="M735 52 L 800 52"/><text x="768" y="44" text-anchor="middle" class="lbl">허용</text>
+    <rect class="box" x="800" y="30" width="150" height="44" rx="4"/><text x="875" y="50" text-anchor="middle">카탈로그 최근접 도시</text><text x="875" y="66" text-anchor="middle" class="lbl">한국 50km · 해외 150km</text>
+    <path d="M660 84 L 660 140"/><text x="690" y="115" class="lbl">거부/실패</text>
+    <rect class="box" x="585" y="140" width="150" height="44" rx="4"/><text x="660" y="160" text-anchor="middle">기본 도시 서울</text><text x="660" y="176" text-anchor="middle" class="lbl">+ "기본 도시" 배지</text>
+    <path d="M260 84 L 260 250"/><text x="290" y="170" class="lbl">아니오 → 마지막 도시</text>
+    <path d="M950 52 C 1000 52, 1000 250, 950 250"/><path d="M735 162 C 780 162, 780 250, 740 250"/>
+    <rect class="key" x="430" y="228" width="310" height="44" rx="4"/><text x="585" y="248" text-anchor="middle">SCR-01 홈 — BFF 요청 · 마지막 응답 즉시 표시</text><text x="585" y="264" text-anchor="middle" class="lbl">nextUpdateAt 전 재요청 없음 · 상태 배지 계산</text>
+    <path d="M260 250 L 430 250"/>
+    <path d="M585 272 L 585 300"/><text x="585" y="318" text-anchor="middle" class="lbl">↑ 상세 시트 · ⚙ 설정 · 도시명 탭 → 도시 선택 · ⇄ 즐겨찾기 순회 · 오류 시 SCR-05</text>
+  </svg></div>
+</section>
+
+<section id="s6">
+  <h2><span class="num">6</span> 기능 정의</h2>
+  <p>우선순위 <span class="pri m">M</span> 필수(1차) · <span class="pri s">S</span> 있으면 좋음(1차 후반) · <span class="pri">C</span> 2차.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>ID</th><th>기능</th><th>설명</th><th>우선</th><th>화면</th><th>정책</th><th>담당</th></tr></thead>
+    <tbody>
+      <tr><td>F-01</td><td>배경색 합성</td><td>온도·날씨 구성·주야 → 6스톱 그라데이션. 1.2s 전환. 계절 입력 없음</td><td><span class="pri m">M</span></td><td>SCR-01</td><td>P-08</td><td>Lisiena·Lily</td></tr>
+      <tr><td>F-02</td><td>대기 효과</td><td>별·글로우·구름띠·비·눈·안개·번개·황사 입자. 파티클 상한, 동작 줄이기 시 정지</td><td><span class="pri m">M</span></td><td>SCR-01</td><td>P-08</td><td>Lisiena·Lily</td></tr>
+      <tr><td>F-03</td><td>현재 날씨 헤더</td><td>현지 시각(15s 틱)·날짜·구성 라벨+아이콘·온도·체감</td><td><span class="pri m">M</span></td><td>SCR-01</td><td>P-05</td><td>Lisiena·Lily</td></tr>
+      <tr><td>F-04</td><td>일출·일몰 아치</td><td>현지 시각 기준 해 위치, 일출·일몰 시각 표기</td><td><span class="pri m">M</span></td><td>SCR-01</td><td>—</td><td>Lisiena·Lily</td></tr>
+      <tr><td>F-05</td><td>위치 → 도시</td><td>GPS 1회 → 카탈로그 최근접. 실패 시 기본 도시 + 배지</td><td><span class="pri m">M</span></td><td>SCR-06·01</td><td>P-01</td><td>Lisiena·Lily·Theo</td></tr>
+      <tr><td>F-06</td><td>데이터 갱신</td><td>BFF 계약 소비. <code>nextUpdateAt</code> 이후·포그라운드 복귀 시 1회. 실패 시 마지막 값 유지</td><td><span class="pri m">M</span></td><td>전체</td><td>P-02</td><td>Theo·Lisiena·Lily</td></tr>
+      <tr><td>F-07</td><td>데이터 상태 배지</td><td>fresh/stale/delayed/offline + fallback/defaultCity. 배경 불변</td><td><span class="pri m">M</span></td><td>SCR-01</td><td>P-03</td><td>Cecilia·Lisiena·Lily</td></tr>
+      <tr><td>F-08</td><td>상세 시트</td><td>바람·습도·강수확률·파도 타일, 시간별 24h, 주간 7일, 갱신 시각·출처</td><td><span class="pri m">M</span></td><td>SCR-02</td><td>P-04·P-06</td><td>Lisiena·Lily</td></tr>
+      <tr><td>F-09</td><td>도시 검색·즐겨찾기</td><td>카탈로그 내 한/영 검색, 즐겨찾기 추가·삭제·순서, 상한 10</td><td><span class="pri m">M</span></td><td>SCR-03</td><td>P-07</td><td>Lisiena·Lily</td></tr>
+      <tr><td>F-10</td><td>다중 도시 순회</td><td>홈에서 좌우 스와이프로 즐겨찾기 순회, 도시별 현지 시각</td><td><span class="pri s">S</span></td><td>SCR-01</td><td>P-07</td><td>Lisiena·Lily</td></tr>
+      <tr><td>F-11</td><td>언어 전환</td><td>한국어·영어. 라벨·배지·출처·도시명 즉시 전환, 색 불변</td><td><span class="pri m">M</span></td><td>SCR-04</td><td>P-05</td><td>Lisiena·Lily</td></tr>
+      <tr><td>F-12</td><td>출처 표기</td><td>설정 하단·시트 최하단. Open-Meteo 링크 포함</td><td><span class="pri m">M</span></td><td>SCR-02·04</td><td>P-06</td><td>Cecilia</td></tr>
+      <tr><td>F-13</td><td>컬러 테스트</td><td>프리셋 11 × 온도 × 주야를 강제해 배경 확인. 디버그 빌드 전용</td><td><span class="pri m">M</span></td><td>SCR-04</td><td>P-08</td><td>Joy</td></tr>
+      <tr><td>F-14</td><td>오류·재시도</td><td>데이터가 전혀 없을 때만 오류 오버레이. 재시도 버튼</td><td><span class="pri m">M</span></td><td>SCR-05</td><td>P-04</td><td>Lisiena·Lily</td></tr>
+      <tr><td>F-15</td><td>도시 카탈로그 배포</td><td><code>GET /v1/catalog</code> ETag, 앱 번들 사본, 버전 비교 교체</td><td><span class="pri m">M</span></td><td>—</td><td>—</td><td>Theo·Lily</td></tr>
+      <tr><td>F-16</td><td>파도·자외선</td><td>해안 도시 파고, UV 지수</td><td><span class="pri">C</span></td><td>SCR-02</td><td>—</td><td>Theo</td></tr>
+      <tr><td>F-17</td><td>기상특보 푸시·위젯</td><td>특보 알림, 홈 위젯 배경색</td><td><span class="pri">C</span></td><td>—</td><td>—</td><td>Lily·Mark</td></tr>
+      <tr><td>F-18</td><td>날씨 환경음</td><td>날씨 구성에 맞는 앰비언트 루프(바람·비·눈·안개·황사)와 뇌우 원샷. 색 전환과 같은 1.2s 크로스페이드. 기본 꺼짐, 무음 스위치·다른 앱 재생 존중</td><td><span class="pri s">S</span></td><td>SCR-01·04</td><td>P-11</td><td>Cecilia(사운드)·Lisiena·Lily</td></tr>
+      <tr><td>F-19</td><td>햅틱 피드백</td><td>도시 전환·시트 열림/닫힘·천둥 번쩍임·강수 강도 변화에 패턴 진동. 기본 켜짐, 시스템 햅틱 설정 존중</td><td><span class="pri s">S</span></td><td>SCR-01·02·04</td><td>P-11</td><td>Lily·Lisiena</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s7">
+  <h2><span class="num">7</span> 정책 정의</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>ID</th><th>정책</th><th>규칙</th></tr></thead>
+    <tbody>
+      <tr><td>P-01</td><td>위치</td><td>"사용 중"·대략적 권한만 요청, 첫 실행 1회. GPS → 카탈로그 최근접(한국 50km·해외 150km) → 없으면 서울 + "기본 도시" 배지. IP 위치·역지오코딩 사용 금지. 조용한 폴백 금지.</td></tr>
+      <tr><td>P-02</td><td>갱신</td><td>클라이언트는 BFF만 호출. <code>nextUpdateAt</code> 전 재요청 없음. 포그라운드 복귀 시 경과했으면 1회. 실패 시 마지막 응답 유지·표시. 한국 도시는 기상청 발표 시각 스케줄, 해외는 최근 24h 조회 도시만 30분.</td></tr>
+      <tr><td>P-03</td><td>데이터 상태</td><td>fresh: 정상 · stale: <code>nextUpdateAt</code>+30분 초과 · delayed: <code>updatedAt</code>+3시간 초과 · offline: 네트워크 없음. 보조: fallback(기상청→Open-Meteo 대체), defaultCity. 배지로만 표시, 배경색·효과 불변.</td></tr>
+      <tr><td>P-04</td><td>결측·오류</td><td>값이 없으면 "—". 파도 없음을 "내륙", 대기질 오류를 "좋음"으로 표기 금지. BFF는 <code>kind: unavailable</code>로 명시. 전체 오류 오버레이는 표시할 데이터가 전혀 없을 때만.</td></tr>
+      <tr><td>P-05</td><td>용어</td><td>기상청 용어: 맑음·구름조금·구름많음·흐림. 강수: 비·이슬비·눈·진눈깨비, 소나기 단독. 강도 접두어 약한/강한. 조합은 " &amp; "로 연결(예: 흐림 &amp; 비, 구름많음 &amp; 황사). 영어는 CLEAR/MOSTLY CLEAR/PARTLY CLOUDY/CLOUDY.</td></tr>
+      <tr><td>P-06</td><td>출처</td><td>기상청(공공누리 1유형) · 한국환경공단 에어코리아 · 한국천문연구원 · Open-Meteo(CC BY 4.0, 링크 필수). 설정 하단 + 상세 시트 최하단. 해외 대기질은 "예측" 표기.</td></tr>
+      <tr><td>P-07</td><td>즐겨찾기</td><td><code>cityId</code> 배열 최대 10, 현재 위치 1개 별도. 로컬 저장, 순서 사용자 지정. 계정 동기화 2차.</td></tr>
+      <tr><td>P-08</td><td>컬러</td><td>배경 = 온도[-15,36] + 날씨 구성 + 주야. 계절 없음. 웹·앱 ±1 골든. 흰 텍스트는 상단 52%에, 고온 하단은 스크림. 12px 미만 텍스트 불투명도 ≥ .75. 파티클 상한 비56·눈48·황사30·별46, 저전력·동작 줄이기 시 정지.</td></tr>
+      <tr><td>P-09</td><td>단위·형식</td><td>1차 °C·m/s·12시간제 고정. 날짜 "9월 14일 / SEP 14". 도시별 현지 시각(<code>utcOffsetSec</code>). 좌표 문자열 "TZ약어 · lat, lon"(소수 2자리)은 홈 하단 도크의 위치 칩에 유지(D10-1).</td></tr>
+      <tr><td>P-10</td><td>배포·수익</td><td>비공개 배포, 광고·결제·추적 SDK 없음(Open-Meteo 비상업 조건). 공개 전환 시 데이터 계약 재검토.</td></tr>
+      <tr><td>P-11</td><td>음향·햅틱</td><td><b>음향</b>: 기본 꺼짐. 켜면 홈에서만 재생, 시트·설정 위에서는 −6dB. 앱 백그라운드·화면 잠금 시 즉시 정지. 기기 무음 스위치(iOS ambient 카테고리)와 다른 앱의 오디오를 존중(믹싱 없이 양보). 볼륨 슬라이더 0~100, 기본 40. 데이터 상태·오류는 소리로 표현하지 않는다. <b>햅틱</b>: 기본 켜짐. 시스템 "햅틱 끄기"·저전력 모드에서 자동 비활성. 연속 진동은 1.5초 상한, 천둥 원샷은 번쩍임과 동기. 웹은 Android Chrome 진동만 지원, 미지원 환경은 조용히 무시. <b>접근성</b>: 음향은 정보의 유일한 통로가 될 수 없다(항상 색·라벨과 중복).</td></tr>
+      
+    </tbody>
+  </table></div>
+</section>
+
+<section id="s8">
+  <h2><span class="num">8</span> 데이터 정의</h2>
+  <div class="cols">
+    <div>
+      <h4>공통 날씨 모델 <code>WeatherComposition</code></h4>
+      <div class="tablewrap"><table><thead><tr><th>필드</th><th>값</th><th>의미</th></tr></thead><tbody>
+        <tr><td>sky</td><td>0·1·2·3</td><td>맑음·구름조금·구름많음·흐림</td></tr>
+        <tr><td>precip</td><td>none·rain·drizzle·snow·sleet·showers</td><td>강수 종류</td></tr>
+        <tr><td>inten</td><td>1·2·3</td><td>약·보통·강 (아이콘 빗방울 개수)</td></tr>
+        <tr><td>fog / storm</td><td>bool</td><td>안개 / 뇌우</td></tr>
+        <tr><td>dust</td><td>0·1·2</td><td>없음·미세먼지·황사</td></tr>
+      </tbody></table></div>
+      <p style="font-size:12.5px">기상청 SKY/PTY/PCP/SNO/LGT/VIS/특보/PM10과 Open-Meteo WMO 코드가 BFF에서 이 모델로 정규화된다. 매핑표: <code>backend/api-contract.md</code>.</p>
+    </div>
+    <div>
+      <h4>BFF 응답 <code>CityWeather</code> (요약)</h4>
+      <div class="tablewrap"><table><thead><tr><th>필드</th><th>내용</th></tr></thead><tbody>
+        <tr><td>source</td><td>kma · open-meteo · open-meteo-fallback</td></tr>
+        <tr><td>updatedAt / nextUpdateAt</td><td>상태 배지·재요청 시점의 근거</td></tr>
+        <tr><td>current</td><td>time, tempC, feelsC, isDay, wx, humidity, windMs, windDeg, pop</td></tr>
+        <tr><td>hourly[24] / daily[7]</td><td>tempC·pop·wx / hi·lo·pop·wx</td></tr>
+        <tr><td>sun</td><td>sunrise, sunset (현지)</td></tr>
+        <tr><td>airQuality / marine</td><td><code>kind</code> observed·forecast·unavailable + 값</td></tr>
+      </tbody></table></div>
+      <p style="font-size:12.5px">도시 카탈로그 <code>database/catalog.json</code>: id, 한/영 이름, 좌표, 타임존, 해안 여부, 기상청 격자·지역코드·측정소.</p>
+    </div>
+  </div>
+  <h4>날씨 구성 → 음향·햅틱 매핑 (F-18·F-19)</h4>
+  <p>음향은 <b>기저 레이어</b>(하늘·바람) 위에 <b>강수 레이어</b>를 얹고, 뇌우만 원샷을 더한다. 게인은 강도(inten)로 정한다. 모든 루프는 20~40초, 이음매 없는 루프, 크로스페이드 1.2s(색 전환과 동일). 햅틱은 이벤트에만 붙이고 상시 진동은 없다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>구성</th><th>기저 레이어</th><th>강수 레이어 (게인 inten 1/2/3)</th><th>원샷</th><th>햅틱</th></tr></thead>
+    <tbody>
+      <tr><td>sky 0~1 주간</td><td><code>amb-clear-day</code> 약한 바람·멀리 새</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td>sky 0~1 야간</td><td><code>amb-clear-night</code> 풀벌레·정적</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td>sky 2~3</td><td><code>amb-wind-soft</code> 바람</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td>rain / showers</td><td>sky 기저 −6dB</td><td><code>rain-loop</code> 0.35 / 0.6 / 0.9</td><td>—</td><td>강도 변화 시 짧은 탭 1회(강도 3은 더블 탭)</td></tr>
+      <tr><td>drizzle</td><td>sky 기저</td><td><code>drizzle-loop</code> 0.3</td><td>—</td><td>—</td></tr>
+      <tr><td>snow / sleet</td><td><code>amb-wind-cold</code></td><td>snow: 없음(정적 강조) · sleet: <code>rain-loop</code> 0.3</td><td>—</td><td>—</td></tr>
+      <tr><td>fog</td><td><code>amb-fog</code> 저역 통과 바람</td><td>—</td><td>—</td><td>—</td></tr>
+      <tr><td>storm</td><td><code>amb-wind-strong</code></td><td><code>rain-loop</code> 0.7</td><td><code>thunder-1~3</code> 번쩍임(<code>.bolt</code> 7s 주기 91%)과 동기, 무작위 선택</td><td>천둥과 동시에 강한 임팩트 1회(iOS transient sharpness .6, Android HEAVY_CLICK)</td></tr>
+      <tr><td>dust 1/2</td><td><code>amb-wind-dust</code> 모래 섞인 바람 0.5 / 0.8</td><td>강수 있으면 위 규칙</td><td>—</td><td>—</td></tr>
+      <tr><td>도시 전환 (⇄)</td><td colspan="3">1.2s 크로스페이드로 새 도시 레이어로 교체</td><td>가벼운 탭(selection changed)</td></tr>
+      <tr><td>시트 열림/닫힘</td><td colspan="3">홈 레이어 −6dB / 복원</td><td>열림·닫힘 각각 소프트 임팩트</td></tr>
+    </tbody>
+  </table></div>
+  <p style="font-size:12.5px">에셋 규격: AAC 96kbps(iOS·웹 m4a) + Opus 64kbps(Android·웹 ogg), 파일당 ≤ 300KB, 총 ≤ 3MB. 웹은 첫 사용자 제스처 후에만 재생(자동재생 정책). 파일명이 위 코드와 같아야 한다.</p>
+</section>
+
+<section id="s9">
+  <h2><span class="num">9</span> 비기능 요구</h2>
+  <div class="tablewrap"><table>
+    <thead><tr><th>항목</th><th>요구</th><th>검증</th></tr></thead>
+    <tbody>
+      <tr><td>NF-01 첫 화면</td><td>캐시가 있으면 0.5초 내 배경색 표시, 없으면 로딩 오버레이 후 3초 내</td><td>Joy 성능 측정</td></tr>
+      <tr><td>NF-02 배터리</td><td>포그라운드 10분당 배터리 1% 이하(효과 켜짐 기준), 백그라운드 통신 없음</td><td>실기기 측정</td></tr>
+      <tr><td>NF-03 접근성</td><td>텍스트 대비 규칙(P-08), 배지에 텍스트, 동작 줄이기 대응, 스크린리더 라벨</td><td>체크리스트</td></tr>
+      <tr><td>NF-04 오프라인</td><td>마지막 응답으로 전 화면 표시, offline 배지</td><td>비행기 모드 테스트</td></tr>
+      <tr><td>NF-05 호환</td><td>iOS 16+, Android 8(API 26)+, 최신 Chrome·Safari</td><td>기기 매트릭스</td></tr>
+      <tr><td>NF-06 쿼터</td><td>외부 API 일 호출 무료 한도 80% 경고·100% 중단</td><td>Mark 알람</td></tr>
+      <tr><td>NF-07 일관성</td><td>웹·iOS·Android 골든 154건 ±1, 라벨 사전 동일</td><td>CI 테스트</td></tr>
+    </tbody>
+  </table></div>
+</section>
+
+<!-- ===================== 화면설계서 ===================== -->
+<section id="scr">
+  <div class="eyebrow">Part B · 화면설계서</div>
+  <h2><span class="num">10</span> 화면 목록</h2>
+  <p>목업은 실제 컬러 엔진이 그린 것이며, 번호 핀은 오른쪽 구성 요소 표의 번호와 대응한다. 변형 버튼으로 상태별 화면을 바꿔 볼 수 있다.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>ID</th><th>화면</th><th>진입</th><th>이탈</th><th>플랫폼</th></tr></thead>
+    <tbody>
+      <tr><td>SCR-01</td><td>홈</td><td>앱 실행, 다른 화면 닫기</td><td>↑ SCR-02 · ⚙ SCR-04 · 도시명 탭 SCR-03 · ⇄ 다음 도시</td><td>웹·iOS·AOS</td></tr>
+      <tr><td>SCR-02</td><td>상세 시트</td><td>홈 핸들 탭·↑ 스와이프</td><td>핸들 ↓ 스와이프·탭, 바깥 탭</td><td>웹·iOS·AOS</td></tr>
+      <tr><td>SCR-03</td><td>도시 선택</td><td>홈 도시명 탭, 기본 도시 배지 탭</td><td>도시 선택, 닫기</td><td>웹·iOS·AOS</td></tr>
+      <tr><td>SCR-04</td><td>설정</td><td>홈 ⚙</td><td>× 닫기, 실시간 복귀</td><td>웹·iOS·AOS (컬러 테스트는 디버그)</td></tr>
+      <tr><td>SCR-05</td><td>상태 오버레이</td><td>표시할 데이터가 없는 로딩·오류</td><td>데이터 수신, 재시도</td><td>웹·iOS·AOS</td></tr>
+      <tr><td>SCR-06</td><td>위치 권한 안내</td><td>첫 실행(즐겨찾기 없음)</td><td>허용·나중에</td><td>iOS·AOS (웹은 브라우저 프롬프트)</td></tr>
+    </tbody>
+  </table></div>
+
+  <!-- SCR-01 -->
+  <div class="scrhead" id="scr01"><span class="id">SCR-01</span><h3>홈</h3><span class="goal">목적: 색으로 현재 날씨를 1초 안에 전달하고, 다른 모든 화면으로의 출발점이 된다.</span></div>
+  <div class="scr">
+    <div class="phonewrap">
+      <div class="variants" data-for="p01"><button class="on" data-v="day">주간 · 구름많음</button><button data-v="night">야간 · 맑음</button><button data-v="rain">비 · 배지</button><button data-v="dust">황사 · 기본 도시</button></div>
+      <div class="phone" id="p01" data-phone="home" data-temp="21" data-preset="pcloudy" data-day="1" data-pins="1:4,26;2:150,40;3:140,72;4:132,178;5:100,330;6:120,470;7:4,520;8:222,12"></div>
+      <small>변형: 주야·프리셋·배지는 모두 같은 레이아웃 위에서 색과 배지만 바뀐다</small>
+    </div>
+    <div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>요소</th><th>유형</th><th>설명·동작</th><th>데이터</th><th>예외</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>상태 배지 행</td><td>배지 목록</td><td>P-03 상태를 왼쪽 위에 표시. 탭하면 갱신 시각 툴팁. "기본 도시" 탭 → SCR-03</td><td>updatedAt, nextUpdateAt, source, locKind</td><td>fresh면 행 자체가 없음. 최대 2줄</td></tr>
+          <tr><td>2</td><td>현지 시각</td><td>텍스트</td><td>도시 타임존 기준 12시간제, 15초마다 갱신</td><td>utcOffsetSec</td><td>오프라인이어도 시계는 돈다</td></tr>
+          <tr><td>3</td><td>날짜 · 구성 라벨 · 아이콘</td><td>텍스트+아이콘</td><td>P-05 용어. 아이콘의 빗방울/눈송이 수 = 강도</td><td>current.time, current.wx</td><td>라벨 2줄까지 허용</td></tr>
+          <tr><td>4</td><td>온도 · 체감</td><td>텍스트</td><td>78px 온도, 아래 12px "체감 23°"</td><td>tempC, feelsC</td><td>feelsC 없으면 줄 숨김</td></tr>
+          <tr><td>5</td><td>일출·일몰 아치</td><td>SVG</td><td>해 위치 = (현재−일출)/(일몰−일출). 밤에는 아치 끝에 흐린 해</td><td>sun, 현지 시각</td><td>극야·백야 도시는 아치 숨김(2차)</td></tr>
+          <tr><td>6</td><td>도시명 · 국가</td><td>텍스트</td><td>콘텐츠 층. 좌우 스와이프 → 다음 즐겨찾기(F-10)</td><td>catalog name</td><td>고온 주간엔 뒤에 스크림. 좌표는 도크로 이동(D10-1)</td></tr>
+          <tr><td>7</td><td>하단 도크 (위치 칩 + ⌃)</td><td>플로팅 캡슐(글래스)</td><td>왼쪽 위치 칩: 출처 아이콘(◎ GPS · ⌂ 기본 도시 · ★ 즐겨찾기) + 라벨 + 좌표 "KST · 35.18, 129.08"(모노스페이스), 탭 → SCR-03. 오른쪽 ⌃ 탭 또는 도크 위로 45px 드래그 → SCR-02. 홈 인디케이터 위 21pt</td><td>locKind, tz, lat/lon</td><td>큰 글씨에서 좌표부터 숨김. 제스처는 도크·빈 배경에서만 시작</td></tr>
+          <tr><td>8</td><td>⚙ 설정</td><td>버튼</td><td>→ SCR-04</td><td>—</td><td>—</td></tr>
+          <tr><td>—</td><td>배경·대기 효과</td><td>그라데이션+파티클</td><td>F-01·F-02. 전환 1.2s. 데이터 상태에 따라 변하지 않음</td><td>tempC, wx, isDay</td><td>동작 줄이기 시 파티클 정지</td></tr>
+          <tr><td>—</td><td>환경음 · 햅틱</td><td>오디오 레이어·진동</td><td>F-18·F-19. 음향은 설정에서 켠 경우만, 홈 표시 중에만 재생. 천둥 원샷은 번쩍임과 동기, 도시 전환·강수 강도 변화에 햅틱</td><td>wx, 설정(sound, haptics)</td><td>백그라운드·잠금 즉시 정지. 무음 스위치·저전력·시스템 햅틱 끄기 존중</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout"><b>상태별 표시.</b> 로딩 중이고 캐시가 있으면 캐시로 그리고 배지만 붙인다. 캐시도 없으면 SCR-05가 위에 뜬다. 컬러 테스트 중에는 도시명 자리에 "COLOR TEST"가 표시되고 배지는 없다.</div>
+    </div>
+  </div>
+
+  <!-- SCR-02 -->
+  <div class="scrhead" id="scr02"><span class="id">SCR-02</span><h3>상세 시트</h3><span class="goal">목적: 숫자가 필요한 순간에만 올라오는 상세 정보. 높이 78%, 배경은 홈 배경을 블러로 비춘다.</span></div>
+  <div class="scr">
+    <div class="phonewrap">
+      <div class="variants" data-for="p02"><button class="on" data-v="rain">비 · 해안 도시</button><button data-v="inland">맑음 · 내륙</button><button data-v="night">야간 · 눈</button></div>
+      <div class="phone" id="p02" data-phone="sheet" data-temp="21" data-preset="rain" data-day="1" data-pins="1:3,150;2:3,222;3:3,300;4:3,352;5:3,468;6:3,528"></div>
+      <small>내륙 도시의 파도 타일은 "—". 오류가 "내륙"으로 보이면 안 된다(P-04)</small>
+    </div>
+    <div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>요소</th><th>유형</th><th>설명·동작</th><th>데이터</th><th>예외</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>시트 핸들 · 제목</td><td>제스처 영역</td><td>↓ 드래그·탭 → 닫기. 시트 밖 배경 탭 → 닫기</td><td>—</td><td>시트 내부 스크롤 중엔 닫히지 않음</td></tr>
+          <tr><td>2</td><td>지표 타일 2×2</td><td>카드</td><td>바람(m/s+방위 8방) · 습도 % · 강수확률 % · 파도 m</td><td>current.windMs/windDeg/humidity/pop, marine</td><td>없는 값 "—". 파도는 <code>kind=unavailable</code>이면 "—", 2차 전 전부 "—"</td></tr>
+          <tr><td>3</td><td>시간별 스트립</td><td>가로 스크롤 24칸</td><td>시각·아이콘·온도·강수확률. 현재 시각 칸이 첫 칸</td><td>hourly[]</td><td>가로 스크롤은 시트 제스처와 분리</td></tr>
+          <tr><td>4</td><td>"주간 예보" 제목</td><td>텍스트</td><td>—</td><td>—</td><td>—</td></tr>
+          <tr><td>5</td><td>주간 7행</td><td>목록</td><td>요일(첫 행 "오늘")·아이콘·최저·온도 범위 막대(BOT 팔레트, 7일 전체 범위 기준)·최고</td><td>daily[]</td><td>7일 미만이면 있는 만큼</td></tr>
+          <tr><td>6</td><td>갱신·출처 줄</td><td>텍스트+링크</td><td>"갱신 HH:MM(현지) · 예측 · 데이터 출처: 기상청 · 에어코리아 · 천문연 · Open-Meteo"</td><td>updatedAt, airQuality.kind</td><td>해외 도시만 "예측" 표기. Open-Meteo 링크 외부 브라우저</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout"><b>대기질 표시 위치.</b> 미세먼지·황사는 홈 라벨(" &amp; 미세먼지")과 배경색에 실리므로 타일에는 넣지 않는다. 수치(PM10·PM2.5)는 2차에 타일 5번째로 검토.</div>
+    </div>
+  </div>
+
+  <!-- SCR-03 -->
+  <div class="scrhead" id="scr03"><span class="id">SCR-03</span><h3>도시 선택</h3><span class="goal">목적: 카탈로그에서 도시를 찾아 보거나 즐겨찾기에 넣는다. 목록 자체가 세계 날씨 지도가 되도록 각 행에 그 도시의 배경색을 보여준다.</span></div>
+  <div class="scr">
+    <div class="phonewrap">
+      <div class="variants" data-for="p03"><button class="on" data-v="list">즐겨찾기</button><button data-v="search">검색 중</button></div>
+      <div class="phone" id="p03" data-phone="picker" data-temp="21" data-preset="pcloudy" data-day="1" data-pins="1:3,52;2:3,120;3:214,120;4:3,330;5:3,392"></div>
+      <small>검색은 카탈로그 내 한/영 부분 일치. 오프라인에서도 동작</small>
+    </div>
+    <div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>요소</th><th>유형</th><th>설명·동작</th><th>데이터</th><th>예외</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>검색창</td><td>입력</td><td>입력 즉시 필터. 한글·영문·국가명 부분 일치. 비우면 즐겨찾기 목록</td><td>catalog</td><td>결과 0건: "카탈로그에 없는 도시예요" + 요청 링크(2차)</td></tr>
+          <tr><td>2</td><td>도시 행</td><td>목록 항목(탭)</td><td>색 조각·도시명·국가·현지 시각·온도. 탭 → 홈으로 전환</td><td>즐겨찾기 일괄 <code>?ids=</code> 응답</td><td>응답 없는 도시는 색 조각 회색·온도 "—"</td></tr>
+          <tr><td>3</td><td>온도 · 현재 위치 표시</td><td>텍스트</td><td>GPS로 잡힌 도시엔 "현재 위치"</td><td>locKind</td><td>기본 도시엔 "기본"</td></tr>
+          <tr><td>4</td><td>즐겨찾기 카운터</td><td>텍스트</td><td>"즐겨찾기 7 / 10 · 카탈로그 38개 도시"</td><td>favorites, catalog.version</td><td>10개 도달 시 추가 버튼 비활성 + 안내</td></tr>
+          <tr><td>5</td><td>행 스와이프 · 길게 누르기</td><td>제스처</td><td>왼쪽 스와이프 → 삭제, 길게 누르기 → 순서 변경(웹은 핸들 드래그)</td><td>favorites</td><td>현재 위치 행은 삭제 불가</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout"><b>즐겨찾기 색 조각.</b> 행의 색은 그 도시의 <code>current</code>로 엔진을 실행한 결과다. 홈과 같은 규칙이므로 도시 선택 화면에서 이미 "어디가 춥고 어디가 비 오는지"가 읽힌다.</div>
+    </div>
+  </div>
+
+  <!-- SCR-04 -->
+  <div class="scrhead" id="scr04"><span class="id">SCR-04</span><h3>설정</h3><span class="goal">목적: 언어와 출처, 그리고 디버그 빌드에서만 컬러 테스트. 위에서 내려오는 패널.</span></div>
+  <div class="scr">
+    <div class="phonewrap">
+      <div class="variants" data-for="p04"><button class="on" data-v="debug">디버그 빌드</button><button data-v="release">공개 빌드</button></div>
+      <div class="phone" id="p04" data-phone="settings" data-temp="20" data-preset="clear" data-day="1" data-pins="1:3,130;2:3,200;3:3,300;4:3,400;5:3,452;6:3,500;7:222,468"></div>
+      <small>공개 빌드에서는 컬러 테스트 블록만 사라지고 언어·환경음·햅틱·출처는 남는다</small>
+    </div>
+    <div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>요소</th><th>유형</th><th>설명·동작</th><th>데이터</th><th>예외</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>제목 · × 닫기</td><td>버튼</td><td>× 또는 ↓ 드래그 → 홈</td><td>—</td><td>—</td></tr>
+          <tr><td>2</td><td>컬러 테스트 토글</td><td>버튼</td><td>켜면 홈 배경이 테스트 값을 따르고 도시명은 "COLOR TEST"</td><td>test.on</td><td>디버그 빌드 전용(F-13)</td></tr>
+          <tr><td>3</td><td>온도 슬라이더</td><td>range −15~36</td><td>즉시 반영</td><td>test.temp</td><td>—</td></tr>
+          <tr><td>4</td><td>날씨 칩 11</td><td>단일 선택</td><td>맑음·구름많음·흐림·비·소나기·눈·진눈깨비·안개·뇌우·미세먼지·황사 (골든 프리셋과 1:1)</td><td>test.cond</td><td>계절 칩 없음(D4)</td></tr>
+          <tr><td>5</td><td>시간대 칩 · 실시간 복귀</td><td>단일 선택·버튼</td><td>주간/야간. 복귀 → 테스트 종료·재요청</td><td>test.day</td><td>—</td></tr>
+          <tr><td>6</td><td>언어 · 데이터 출처</td><td>칩·텍스트</td><td>한국어/English 즉시 전환. 출처 4곳 + Open-Meteo 링크</td><td>lang</td><td>언어는 로컬 저장</td></tr>
+          <tr><td>7</td><td>환경음 · 햅틱</td><td>토글 2개 + 볼륨</td><td>"날씨 환경음" 토글(기본 꺼짐) → 켜면 볼륨 슬라이더(기본 40) 노출, 즉시 미리듣기. "햅틱" 토글(기본 켜짐). 공개 빌드에도 표시</td><td>settings.sound, settings.volume, settings.haptics</td><td>시스템 햅틱 꺼짐이면 토글 비활성 + 안내. 웹은 진동 미지원 브라우저에서 햅틱 토글 숨김</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- SCR-05 -->
+  <div class="scrhead" id="scr05"><span class="id">SCR-05</span><h3>상태 오버레이</h3><span class="goal">목적: 표시할 데이터가 전혀 없을 때만 나타나는 로딩·오류 층. 캐시가 있으면 절대 뜨지 않는다.</span></div>
+  <div class="scr">
+    <div class="phonewrap">
+      <div class="variants" data-for="p05"><button class="on" data-v="loading">위치 확인 중</button><button data-v="loading2">불러오는 중</button><button data-v="error">오류</button></div>
+      <div class="phone" id="p05" data-phone="status" data-temp="15" data-preset="pcloudy" data-day="1" data-pins="1:3,250;2:3,300;3:3,340"></div>
+      <small>배경은 기본 팔레트(15° 구름많음)로 그려 첫 프레임부터 색이 있다</small>
+    </div>
+    <div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>요소</th><th>유형</th><th>설명·동작</th><th>데이터</th><th>예외</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>스피너</td><td>애니메이션</td><td>로딩 단계에서만. 동작 줄이기 시 정지 점</td><td>status</td><td>—</td></tr>
+          <tr><td>2</td><td>메시지</td><td>텍스트</td><td>"위치 확인 중" → "불러오는 중" → 오류 시 "데이터를 불러오지 못했어요"</td><td>status</td><td>오류 원인은 쓰지 않는다(네트워크·서버 구분은 로그로)</td></tr>
+          <tr><td>3</td><td>다시 시도</td><td>버튼</td><td>오류일 때만. 탭 → 재요청. 3회 실패 시 "도시 선택" 버튼 추가</td><td>—</td><td>재시도 중 버튼 비활성</td></tr>
+        </tbody>
+      </table></div>
+      <div class="callout"><b>오류의 원칙(P-04).</b> 캐시가 하나라도 있으면 이 화면 대신 홈 + 배지(delayed/offline)로 처리한다. 사용자는 오류 화면보다 오래된 날씨를 더 원한다.</div>
+    </div>
+  </div>
+
+  <!-- SCR-06 -->
+  <div class="scrhead" id="scr06"><span class="id">SCR-06</span><h3>위치 권한 안내</h3><span class="goal">목적: 시스템 권한 프롬프트 전에 "왜"를 한 문장으로 설명하고, 거부해도 앱이 쓸모 있음을 보여준다. 첫 실행 1회.</span></div>
+  <div class="scr">
+    <div class="phonewrap">
+      <div class="variants" data-for="p06"><button class="on" data-v="ko">한국어</button><button data-v="en">English</button></div>
+      <div class="phone" id="p06" data-phone="permission" data-temp="21" data-preset="clear" data-day="1" data-pins="1:3,200;2:3,262;3:3,370;4:3,420"></div>
+      <small>iOS·Android 전용. 웹은 브라우저 프롬프트를 그대로 쓴다</small>
+    </div>
+    <div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>#</th><th>요소</th><th>유형</th><th>설명·동작</th><th>데이터</th><th>예외</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>제목</td><td>텍스트</td><td>"지금 있는 곳의 하늘색부터 보여드릴게요"</td><td>—</td><td>—</td></tr>
+          <tr><td>2</td><td>설명</td><td>텍스트</td><td>"가장 가까운 도시의 날씨를 고르기 위해 대략적인 위치만 사용합니다. 저장하거나 보내지 않아요."</td><td>—</td><td>정밀 위치 요구 금지(P-01)</td></tr>
+          <tr><td>3</td><td>위치 허용하기</td><td>주 버튼</td><td>시스템 프롬프트 호출 → 결과에 따라 흐름(§5)</td><td>—</td><td>시스템에서 거부 시 4와 동일</td></tr>
+          <tr><td>4</td><td>도시를 직접 고를게요</td><td>보조 버튼</td><td>→ SCR-03(즐겨찾기 비어 있음, 검색 포커스)</td><td>—</td><td>이후 설정에서 위치 다시 요청 가능</td></tr>
+        </tbody>
+      </table></div>
+    </div>
+  </div>
+</section>
+
+<section id="s11">
+  <h2><span class="num">11</span> 용어·참조</h2>
+  <div class="cols">
+    <div class="tablewrap"><table><thead><tr><th>용어</th><th>뜻</th></tr></thead><tbody>
+      <tr><td>BFF</td><td>Backend for Frontend. 수집·캐시·정규화를 맡는 서버. 클라이언트의 유일한 데이터 출처</td></tr>
+      <tr><td>공통 모델</td><td><code>WeatherComposition</code>. 기상청·Open-Meteo를 하나로 정규화한 날씨 구성</td></tr>
+      <tr><td>골든 케이스</td><td>컬러 엔진 입력→출력 기준값 154건. 웹·앱 일치 검증용</td></tr>
+      <tr><td>카탈로그</td><td>서비스 대상 도시 목록과 메타데이터(<code>database/catalog.json</code>)</td></tr>
+      <tr><td>배지</td><td>데이터 상태를 알리는 작은 라벨. 배경색을 대신하지 않는다</td></tr>
+    </tbody></table></div>
+    <div><h4>참조 문서 (저장소)</h4><ul>
+      <li><code>planning/05-decisions.md</code> — 확정 결정 D1~D7</li>
+      <li><code>backend/api-contract.md</code> — BFF 계약·기상청 매핑표·수집 스케줄</li>
+      <li><code>design/golden-cases-and-states.md</code>, <code>design/color-engine-spec.md</code> — 디자인 토큰·엔진 스펙</li>
+      <li><code>app/README.md</code> — iOS·Android 구현 규칙</li>
+      <li><code>docs/dev-setup.md</code> — 로컬 실행·QA 파라미터</li>
+      <li>디자인 스펙 페이지(컬러 랩·와이어프레임) — 별도 아티팩트 "ColorSense 디자인 스펙"</li>
+    </ul></div>
+  </div>
+</section>
+
+<section id="s12">
+  <div class="eyebrow">Part C · 기술</div>
+  <h2><span class="num">12</span> 기술 스택</h2>
+  <p>선정 기준은 네 가지다. 무료 한도 안에서 돌아갈 것, 웹·iOS·Android가 <b>같은 공통 모델과 골든 케이스</b>를 공유할 것, 한 사람이 맡은 영역을 혼자 운영할 수 있을 만큼 단순할 것, 그리고 비공개 배포에서 공개 배포로 갈 때 갈아엎지 않아도 될 것.</p>
+  <div class="tablewrap"><table>
+    <thead><tr><th>영역</th><th>선정</th><th>이유</th><th>검토 후 제외</th><th>담당</th></tr></thead>
+    <tbody>
+      <tr><td>프론트(웹)</td><td><b>React 18 + Vite 5</b>, TypeScript(점진 전환), CSS(토큰 변수), 상태는 훅(외부 상태 라이브러리 없음), 테스트 <b>Vitest + Playwright</b>, 오디오 Web Audio API, 진동 <code>navigator.vibrate</code></td><td>이미 동작하는 리팩터링 결과물. 화면 4장·전역 상태 1개라 Redux류가 과함. 컬러 엔진·모델을 TS로 옮기면 BFF와 타입을 공유</td><td>Next.js(SSR 불필요), Tailwind(토큰 CSS로 충분), Redux/Zustand</td><td>Lisiena</td></tr>
+      <tr><td>앱 iOS</td><td><b>Swift 5.9 · SwiftUI · iOS 16+</b>, URLSession + Codable, Canvas/TimelineView(효과), <b>AVFoundation</b>(AVAudioSession <code>.ambient</code>, AVAudioPlayer 루프·크로스페이드), <b>Core Haptics</b>, UserDefaults(즐겨찾기·설정), XCTest 골든</td><td>D7 네이티브 결정. 표준 프레임워크만으로 충분해 외부 의존성 0</td><td>Flutter, RN, Alamofire, Realm</td><td>Lily</td></tr>
+      <tr><td>앱 Android</td><td><b>Kotlin 1.9 · Jetpack Compose · Material3 · minSdk 26</b>, Retrofit + kotlinx.serialization, Canvas(효과), <b>Media3 ExoPlayer</b>(루프·게인), <b>VibrationEffect / HapticFeedbackConstants</b>, DataStore(설정), JUnit 골든</td><td>Compose 표준 스택. Media3는 gapless 루프·볼륨 페이드 지원</td><td>MediaPlayer(루프 이음매 문제), Room(1차엔 RDB 불필요)</td><td>Lily</td></tr>
+      <tr><td>백엔드(BFF)</td><td><b>Node.js 22 + TypeScript</b>, <b>Hono</b>(경량 HTTP, Lambda 어댑터), <b>Zod</b>(CityWeather·기상청 응답 검증), 소스 어댑터 4종(kma·airkorea·kasi·openmeteo), 공유 패키지 <code>packages/core</code>(model·kma 매핑·color)</td><td>프론트와 같은 언어라 <code>kma.js</code>·<code>model.js</code>를 그대로 공유하고 골든 테스트를 한 곳에서 돌림. Hono는 Lambda 콜드스타트가 작고 로컬 실행이 같음</td><td>Python FastAPI(매핑 코드 이중화), NestJS(과함), Go(팀 언어 분산)</td><td>Theo</td></tr>
+      <tr><td>데이터베이스</td><td><b>DynamoDB</b> 단일 테이블 <code>weather</code>(pk cityId, sk kind, TTL 24h) + <b>S3</b> 정적 <code>catalog.json</code>(ETag). 즐겨찾기는 기기 로컬</td><td>키-값·TTL·온디맨드가 요구사항 전부. 프리티어 25GB. 카탈로그는 변경이 드물어 파일이 낫다</td><td>PostgreSQL/RDS(상시 비용, 관계 없음), Redis(캐시 계층 중복), Firebase(락인)</td><td>Theo</td></tr>
+      <tr><td>인프라</td><td><b>AWS</b>: Lambda(collector·api), EventBridge Scheduler, API Gateway HTTP, CloudFront + S3(웹·카탈로그·오디오 에셋), SSM Parameter Store(키), CloudWatch(지표·알람). IaC <b>AWS CDK(TypeScript)</b>. 로컬은 <b>Docker Compose</b>(모의 BFF + 웹)</td><td>백엔드와 같은 TS로 IaC. 프리티어 안. 오디오 에셋(≤3MB)은 CloudFront로 배포해 앱 용량을 줄임</td><td>SAM(YAML 분리), Terraform(팀 규모 대비 무거움), Vercel/Netlify(스케줄러·DynamoDB 통합 약함)</td><td>Mark</td></tr>
+      <tr><td>CI/CD</td><td><b>GitHub Actions</b>: <code>npm test</code>(매핑·골든·카탈로그) → <code>vite build</code> → 골든 JSON diff → CDK deploy(dev/prod). iOS는 <b>Xcode Cloud</b> 또는 fastlane → TestFlight, Android는 Gradle → Play 내부 트랙</td><td>골든 diff를 파이프라인에 넣어 웹·앱 색 불일치를 커밋 단계에서 막음</td><td>Jenkins, Bitrise(유료)</td><td>Mark·Lily</td></tr>
+      <tr><td>모니터링</td><td>CloudWatch(쿼터·신선도·소스 오류), <b>Sentry</b> 무료 티어(웹·앱 크래시), 분석 없음(비공개 배포·추적 SDK 금지 P-10)</td><td>필요한 것은 "데이터가 오래됐는가"와 "앱이 죽는가" 둘뿐</td><td>Datadog(비용), Firebase Analytics(추적)</td><td>Mark·Joy</td></tr>
+      <tr><td>사운드 제작</td><td>루프 에셋: 오픈 라이선스(CC0) 필드 레코딩 + Audacity/Reaper 편집, 파일명 = 매핑표 코드, 포맷 m4a(AAC 96k)·ogg(Opus 64k)</td><td>무료·재배포 가능 라이선스만. 출처는 설정 하단에 함께 표기</td><td>유료 라이브러리, 합성음(품질)</td><td>Cecilia</td></tr>
+    </tbody>
+  </table></div>
+  <div class="callout"><b>저장소 배치.</b> <code>frontend/</code>(웹), <code>app/ios</code>·<code>app/android</code>, <code>backend/</code>(Hono BFF + 어댑터), <code>packages/core</code>(공유 모델·매핑·컬러 엔진, 웹과 BFF가 함께 import), <code>database/</code>(카탈로그·테이블 정의), <code>infra/code</code>(CDK)·<code>infra/docker</code>. 공유 패키지는 지금의 <code>frontend/src/lib/{model,kma,color}.js</code>를 옮기는 것으로 시작한다.</div>
+</section>
+
+</div>
+<script>
+/* ===== 컬러 엔진 (src/lib/color.js skyStops 와 동일) ===== */
+const ANCHORS=[
+ {t:-15,s:[[8,12,40],[16,36,84],[40,80,132],[96,140,176],[196,200,206],[130,140,168]]},
+ {t:0,s:[[12,20,52],[26,52,104],[58,104,158],[120,168,196],[214,206,196],[150,150,170]]},
+ {t:10,s:[[12,24,60],[26,64,120],[58,120,168],[140,186,198],[238,206,160],[206,160,120]]},
+ {t:19,s:[[12,26,66],[24,72,128],[58,132,172],[176,206,196],[246,204,140],[236,150,80]]},
+ {t:27,s:[[26,30,74],[40,78,134],[120,158,176],[240,200,150],[246,150,78],[226,104,54]]},
+ {t:36,s:[[46,34,82],[96,80,138],[200,150,150],[250,180,120],[245,120,64],[216,58,44]]}];
+const POS=[0,30,52,70,84,100];
+const lerp=(a,b,r)=>a+(b-a)*r, mix=(a,b,r)=>a.map((v,i)=>v+(b[i]-v)*r), grey=c=>{const l=.3*c[0]+.59*c[1]+.11*c[2];return[l,l,l]};
+function buildStops(t){t=Math.max(-15,Math.min(36,t));for(let i=0;i<ANCHORS.length-1;i++){const a=ANCHORS[i],b=ANCHORS[i+1];if(t>=a.t&&t<=b.t){const r=(t-a.t)/(b.t-a.t);return a.s.map((c,k)=>c.map((v,j)=>lerp(v,b.s[k][j],r)))}}return ANCHORS[ANCHORS.length-1].s.map(c=>c.slice())}
+function skyStops(t,w,isDay){let s=buildStops(t);const mute=[0,.06,.18,.34][w.sky]||0,dk=[1,.98,.95,.9][w.sky]||1;if(mute>0)s=s.map(c=>mix(c,grey(c),mute).map(v=>v*dk));
+ const p=w.precip;if(['rain','showers','drizzle','sleet'].includes(p))s=s.map(c=>mix(c,grey(c),.3).map(v=>v*(p==='drizzle'?.78:.68)));
+ if(p==='snow'||p==='sleet')s=s.map((c,i)=>mix(c,[255,255,255],i<3?.16:.3));if(w.fog)s=s.map(c=>mix(c,grey(c),.5).map(v=>v*.92));if(w.storm)s=s.map(c=>c.map(v=>v*.78));
+ if(w.dust){const amt=w.dust===2?.44:.26;s=s.map(c=>mix(mix(c,grey(c),.28),[198,168,112],amt).map(v=>v*.95))}
+ if(isDay===0){const nf=[.4,.45,.5,.55,.64,.6];s=s.map((c,i)=>mix(c,grey(c),.22).map(v=>v*nf[i]))}
+ return s.map(c=>c.map(v=>Math.round(Math.max(0,Math.min(255,v)))))}
+const rgb=c=>`rgb(${c.join(',')})`, hex=c=>'#'+c.map(v=>v.toString(16).padStart(2,'0')).join('');
+const grad=(t,w,d)=>'linear-gradient(180deg,'+skyStops(t,w,d).map((c,i)=>`${rgb(c)} ${POS[i]}%`).join(',')+')';
+const PRESETS={clear:{sky:0},pcloudy:{sky:2},overcast:{sky:3},rain:{sky:3,precip:'rain',inten:2},showers:{sky:2,precip:'showers',inten:2},snow:{sky:3,precip:'snow',inten:2},sleet:{sky:3,precip:'sleet',inten:2},fog:{sky:3,fog:1},storm:{sky:3,precip:'rain',inten:2,storm:1},finedust:{sky:2,dust:1},yellowdust:{sky:2,dust:2}};
+const LABEL={clear:'맑음',pcloudy:'구름많음',overcast:'흐림',rain:'흐림 & 비',showers:'소나기',snow:'흐림 & 눈',sleet:'흐림 & 진눈깨비',fog:'안개',storm:'흐림 & 뇌우',finedust:'구름많음 & 미세먼지',yellowdust:'구름많음 & 황사'};
+const wx=(k,dust)=>({sky:0,precip:'none',inten:2,fog:false,storm:false,dust:0,...PRESETS[k],...(dust?{dust}:{})});
+
+/* ===== 아이콘 ===== */
+const ST='stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"';
+const CLOUD=`<path d="M6 16.3h10a3 3 0 0 0 .3-6 4.5 4.5 0 0 0-8.7-1.1A3.3 3.3 0 0 0 6 16.3z" ${ST}/>`;
+const drops=n=>[8.5,12,15.5].slice(0,n).map(x=>`<line x1="${x}" y1="18.5" x2="${x-1}" y2="21.5" ${ST}/>`).join('');
+const flakes=n=>[8.5,12,15.5].slice(0,n).map(x=>`<circle cx="${x}" cy="20" r="1" fill="#fff" stroke="none"/>`).join('');
+const sun=`<circle cx="12" cy="12" r="4" ${ST}/>`+[0,45,90,135,180,225,270,315].map(a=>{const r=a*Math.PI/180;return `<line x1="${(12+Math.cos(r)*6.6).toFixed(1)}" y1="${(12+Math.sin(r)*6.6).toFixed(1)}" x2="${(12+Math.cos(r)*8.8).toFixed(1)}" y2="${(12+Math.sin(r)*8.8).toFixed(1)}" ${ST}/>`}).join('');
+function icon(w,isDay){const wrap=i=>`<svg viewBox="0 0 24 24">${i}</svg>`;
+ if(w.dust&&w.precip==='none'&&!w.storm&&!w.fog)return wrap(`<circle cx="16.5" cy="8" r="3" ${ST}/><line x1="4" y1="13.5" x2="17" y2="13.5" ${ST}/><line x1="4" y1="17" x2="20" y2="17" ${ST}/><line x1="6" y1="20.5" x2="18" y2="20.5" ${ST}/>`);
+ if(w.fog)return wrap(`${CLOUD}<line x1="6" y1="19.5" x2="15" y2="19.5" ${ST}/><line x1="9" y1="22" x2="18" y2="22" ${ST}/>`);
+ if(w.storm)return wrap(`${CLOUD}<path d="M12 17.5l-2.2 3.4h2.6L10.6 24" ${ST}/>`);
+ if(w.precip==='rain'||w.precip==='showers')return wrap(CLOUD+drops(w.inten));if(w.precip==='drizzle')return wrap(CLOUD+flakes(2));
+ if(w.precip==='sleet')return wrap(CLOUD+`<line x1="9" y1="18.5" x2="8" y2="21.5" ${ST}/><circle cx="14.5" cy="20" r="1" fill="#fff" stroke="none"/>`);
+ if(w.precip==='snow')return wrap(CLOUD+flakes(w.inten));if(w.sky>=2)return wrap(CLOUD);if(w.sky===1)return wrap(`<circle cx="8.5" cy="9" r="3" ${ST}/>${CLOUD}`);
+ if(isDay===0)return wrap(`<path d="M17 13.5A6 6 0 1 1 11 5.7 4.9 4.9 0 0 0 17 13.5z" ${ST}/>`);return wrap(sun)}
+const GEAR=`<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.5"><circle cx="12" cy="12" r="3.2"/><path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.2 5.2l2.1 2.1M16.7 16.7l2.1 2.1M18.8 5.2l-2.1 2.1M7.3 16.7l-2.1 2.1" stroke-linecap="round"/></svg>`;
+function arcSvg(t){const W=340,bY=118,x0=48,x1=292,cx=170,rx=122,ry=80;const sx=cx-rx*Math.cos(Math.PI*t),sy=bY-ry*Math.sin(Math.PI*t);
+ return `<svg viewBox="0 0 340 150"><path d="M${x0},${bY} A${rx},${ry} 0 0 1 ${x1},${bY}" fill="none" stroke="rgba(255,255,255,.85)" stroke-width="1.5" stroke-linecap="round" stroke-dasharray="1.5 8"/><line x1="14" y1="${bY}" x2="326" y2="${bY}" stroke="rgba(255,255,255,.85)" stroke-width="1.4"/><text x="170" y="104" text-anchor="middle" fill="rgba(255,255,255,.72)" font-size="12.5" letter-spacing="3" font-family="inherit">일출 · 일몰</text><circle cx="${sx.toFixed(1)}" cy="${sy.toFixed(1)}" r="6.5" fill="#F6C558"/><text x="44" y="143" text-anchor="middle" fill="rgba(255,255,255,.9)" font-size="12.5" font-family="inherit">오전 6:12</text><text x="296" y="143" text-anchor="middle" fill="rgba(255,255,255,.9)" font-size="12.5" font-family="inherit">오후 6:40</text></svg>`}
+const BOT=[{t:-10,c:[120,140,180]},{t:0,c:[150,166,196]},{t:10,c:[196,182,178]},{t:18,c:[240,178,120]},{t:24,c:[255,150,78]},{t:30,c:[255,112,58]},{t:38,c:[255,74,52]}];
+function interp(s,t){t=Math.max(s[0].t,Math.min(s[s.length-1].t,t));for(let i=0;i<s.length-1;i++){const a=s[i],b=s[i+1];if(t>=a.t&&t<=b.t){const r=(t-a.t)/(b.t-a.t);return[0,1,2].map(k=>Math.round(lerp(a.c[k],b.c[k],r)))}}return s[s.length-1].c}
+
+/* ===== 폰 목업 ===== */
+const HOURS=[['14',26,10,'clear'],['15',26,10,'clear'],['16',25,20,'pcloudy'],['17',24,40,'showers'],['18',23,60,'rain'],['19',22,60,'rain'],['20',21,30,'overcast'],['21',21,20,'overcast'],['22',20,10,'pcloudy']];
+const DAYS=[['오늘',19,27,'showers'],['화',18,26,'overcast'],['수',17,24,'rain'],['목',17,25,'clear'],['금',19,28,'pcloudy'],['토',12,20,'snow'],['일',16,23,'storm']];
+const CITIES=[['서울','대한민국',21,'pcloudy',1],['부산','대한민국',26,'showers',1],['제주','대한민국',24,'clear',1],['도쿄','일본',25,'rain',1],['싱가포르','싱가포르',30,'storm',1],['모스크바','러시아',-6,'snow',0],['시드니','호주',17,'clear',0]];
+function homeInner(o,badges){const b=badges?`<div class="badges">${badges.map(k=>`<span class="badge ${k}">${({stale:'갱신 지연',delayed:'오래된 데이터',offline:'오프라인',fallback:'대체 데이터',defaultCity:'기본 도시'})[k]}</span>`).join('')}</div>`:'';
+ return `${b}<div class="content"><div><div class="d-time">오후 2:05</div><div class="d-date">9월 14일</div><div class="d-cond">${icon(o.w,o.day)}<span>${LABEL[o.preset]}</span></div><div class="d-temp">${o.t}°</div><div class="d-feels">체감 ${o.t+2}°</div></div><div class="spacer"></div><div class="arc">${arcSvg(.62)}</div><div class="city"><div class="n1">부산</div><div class="n2">대한민국</div></div></div><div class="gear">${GEAR}</div><div class="dock wdock"><span class="lchip"><span class="pinico">◎</span><span>현재 위치</span><span class="coord">KST · 35.18, 129.08</span></span><span class="chev">⌃</span></div>`}
+function sheetInner(o={}){const lo=Math.min(...DAYS.map(d=>d[1])),hi=Math.max(...DAYS.map(d=>d[2])),span=hi-lo;
+ return `<div class="sheet"><div class="shandle"></div><div class="stitle">상세 정보</div><div class="metrics"><div class="tile"><div class="tl">바람</div><div class="tv">4 <small>m/s 남</small></div></div><div class="tile"><div class="tl">습도</div><div class="tv">70<small>%</small></div></div><div class="tile"><div class="tl">강수확률</div><div class="tv">60<small>%</small></div></div><div class="tile"><div class="tl">파도</div><div class="tv">${o.coastal?`0.8 <small>m</small>`:`<small>—</small>`}</div></div></div>
+ <div class="hlist">${HOURS.map(h=>`<div class="hcol"><span class="ht">${h[0]}</span>${icon(wx(h[3]),1)}<span class="hv">${h[1]}°</span><span class="hp">${h[2]}%</span></div>`).join('')}</div>
+ <div class="stitle">주간 예보</div>${DAYS.map(d=>`<div class="drow"><span class="dw">${d[0]}</span>${icon(wx(d[3]),1)}<span class="dlo">${d[1]}°</span><span class="track"><span class="fill" style="left:${(d[1]-lo)/span*100}%;width:${Math.max((d[2]-d[1])/span*100,6)}%;background:linear-gradient(90deg,${rgb(interp(BOT,d[1]))},${rgb(interp(BOT,d[2]))})"></span></span><span class="dhi">${d[2]}°</span></div>`).join('')}
+ <div class="attrib">갱신 오후 1:40 · 데이터 출처: 기상청 · 에어코리아 · 천문연 · Open-Meteo</div></div>`}
+function settingsInner(o={}){const rel=o.variant==='release';const chips=k=>Object.keys(PRESETS).map(p=>`<span class="${p===k?'on':''}">${({clear:'맑음',pcloudy:'구름많음',overcast:'흐림',rain:'비',showers:'소나기',snow:'눈',sleet:'진눈깨비',fog:'안개',storm:'뇌우',finedust:'미세먼지',yellowdust:'황사'})[p]}</span>`).join('');
+ return `<div class="settings"><div class="stt"><span>설 정</span><span>×</span></div>${rel?"":`<div class="slabel">컬러 테스트</div><div class="sdesc">기획한 날씨·온도 조합의 배경색을 직접 확인합니다. 값을 바꾸면 화면 색이 바로 반영돼요.</div><div class="tbtn">컬러 테스트 진행 중</div><div class="cl" style="display:flex;justify-content:space-between"><span>온도</span><span>20°</span></div><div class="range"></div><div class="cl">날씨</div><div class="chips">${chips('clear')}</div><div class="cl">시간대</div><div class="chips"><span class="on">주간</span><span>야간</span></div>`}<div class="slabel" style="margin-top:8px">언어</div><div class="chips"><span class="on">한국어</span><span>English</span></div><div class="slabel" style="margin-top:6px">환경음 · 햅틱</div><div class="chips"><span>환경음 꺼짐</span><span class="on">햅틱 켜짐</span></div><div class="src">데이터 출처 · 기상청 · 에어코리아 · 천문연 · Open-Meteo</div></div>`}
+
+/* ===== 추가 화면: 도시 선택(검색 변형) · 상태 오버레이 · 권한 안내 ===== */
+function pickerInner(o){const searching=o.variant==='search';const list=searching?CITIES.filter(c=>c[0].startsWith('시')||c[1]==='일본'):CITIES;
+ return `<div class="picker"><div class="search" style="${searching?'border-color:#fff;opacity:1':''}">${searching?'시|':'도시 검색 · Seoul, 東京 …'}</div>${list.map(c=>`<div class="crow"><span class="sw" style="background:${grad(c[2],wx(c[3]),c[4])}"></span><span class="cn">${c[0]}<small>${c[1]} · ${c[4]?'오후':'오전'} ${c[4]?'2:05':'8:05'}</small></span><span class="ct">${c[2]<0?'−':''}${Math.abs(c[2])}°</span><span class="pin">${c[0]==='부산'?'현재 위치':(searching?'+ 추가':'')}</span></div>`).join('')}<div class="cnt">${searching?'검색 결과 '+list.length+'건':'즐겨찾기 7 / 10 · 카탈로그 38개 도시'}</div></div>`}
+function statusInner(o){const v=o.variant||'loading';const msg={loading:'위치 확인 중',loading2:'불러오는 중',error:'데이터를 불러오지 못했어요'}[v];
+ return `<div class="stat"><div class="ring" style="${v==='error'?'display:none':''}"></div><div class="msg">${msg}</div><div class="retry" style="${v==='error'?'':'display:none'}">다시 시도</div></div>`}
+function permissionInner(o){const en=o.variant==='en';
+ return `<div class="perm"><div class="pt">${en?'Let’s start with the sky right where you are':'지금 있는 곳의 하늘색부터 보여드릴게요'}</div><div class="pd">${en?'We use your approximate location only to pick the nearest city. Nothing is stored or sent anywhere.':'가장 가까운 도시의 날씨를 고르기 위해 대략적인 위치만 사용합니다. 저장하거나 보내지 않아요.'}</div><div class="pb">${en?'ALLOW LOCATION':'위치 허용하기'}</div><div class="ps">${en?'I’ll pick a city myself':'도시를 직접 고를게요'}</div></div>`}
+
+/* ===== 폰 렌더러 (변형 지원) ===== */
+const HOME_VARIANTS={day:{t:21,preset:'pcloudy',day:1},night:{t:14,preset:'clear',day:0},rain:{t:18,preset:'rain',day:1,badges:['stale']},dust:{t:24,preset:'yellowdust',day:1,badges:['defaultCity']}};
+const SHEET_VARIANTS={rain:{t:21,preset:'rain',day:1,coastal:true},inland:{t:26,preset:'clear',day:1,coastal:false},night:{t:-3,preset:'snow',day:0,coastal:true}};
+function renderPhone(el,over={}){
+ const kind=el.dataset.phone;const base={t:+el.dataset.temp,day:+el.dataset.day,preset:el.dataset.preset,dust:+(el.dataset.dust||0),badges:el.dataset.badges?el.dataset.badges.split(','):null};
+ const o={...base,...over};const w=wx(o.preset,o.dust);o.w=w;
+ let inner=`<div class="sky" style="background:${grad(o.t,w,o.day)}"></div>`+(o.day?(w.sky<=2&&!w.fog?'<div class="glow"></div>':''):`<div class="stars">${Array.from({length:30},(_,i)=>`<span class="star" style="left:${(i*37)%100}%;top:${(i*23)%55}%;width:${1+(i%3)*.6}px;height:${1+(i%3)*.6}px;opacity:${.4+(i%4)*.15}"></span>`).join('')}</div>`)+`<div class="grain"></div>`;
+ if(kind==='status'){inner+=statusInner(o)}
+ else if(kind==='permission'){inner+=permissionInner(o)}
+ else{inner+=homeInner(o,o.badges);if(kind==='sheet')inner+=sheetInner(o);if(kind==='settings')inner+=settingsInner(o);if(kind==='picker')inner+=pickerInner(o)}
+ if(el.dataset.pins)inner+=el.dataset.pins.split(';').map(p=>{const[n,xy]=p.split(':');const[x,y]=xy.split(',');return `<span class="pin-n" style="left:${x}px;top:${y}px">${n}</span>`}).join('');
+ el.innerHTML=`<div class="screen">${inner}</div>`}
+document.querySelectorAll('.phone').forEach(el=>renderPhone(el));
+document.querySelectorAll('.variants').forEach(g=>{const el=document.getElementById(g.dataset.for);g.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{g.querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));const v=b.dataset.v;
+ const kind=el.dataset.phone;let over={variant:v};
+ if(kind==='home')over={...HOME_VARIANTS[v],variant:v};if(kind==='sheet')over={...SHEET_VARIANTS[v],variant:v};
+ renderPhone(el,over)}))});
+</script>
+</body></html>
