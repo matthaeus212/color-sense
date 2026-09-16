@@ -3,19 +3,42 @@
 작성: 2026-09-14 · 대상: 팀 전원 · 위치: `frontend/`
 
 ## 0. 준비
-Node 20 이상. `cd frontend && npm install` 한 번.
 
-## 1. 세 가지 실행 모드
+저장소 루트에서 `npm run setup` 한 번. Node 20 이상이 필요하고, 프론트·`packages/core`·`backend/bff` 의존성 설치와 BFF 빌드까지 한다.
+기상청·천문연 키를 쓰려면 `backend/.env.local` 에 `KMA_KEY` / `AIR_KEY` / `ASTRO_KEY` 를 둔다(git 제외). 키가 없어도 전부 동작한다 — 한국 도시가 Open-Meteo 폴백으로 내려올 뿐이다.
 
-| 명령 | 데이터 | 용도 |
-|---|---|---|
-| `npm run dev` | 브라우저가 Open-Meteo 무료 티어 직접 호출(로컬 어댑터) | 실제 날씨로 색·레이아웃 확인. 비상업·개발 전용 |
-| `npm run dev:mock` | 모의 BFF(`localhost:8787`) — 실제 계약과 같은 CityWeather | **QA·디자인 기본 모드.** 키 없음, 오프라인 가능, 시나리오 강제 가능 |
-| `npm run build && npm run preview` | 빌드 결과 | 배포 전 확인 (`VITE_BFF_URL` 을 `.env.local` 에 두면 BFF 사용) |
+## 1. 실행 모드 (전부 루트에서)
 
-루트에서 `npm run bff` 를 쓰면 실제 BFF(`backend/bff`)가 `http://localhost:8788` 에 뜬다. 키(`backend/.env.local`)가 있으면 기상청·천문연 실데이터, 없으면 전 도시를 Open-Meteo 로 응답한다. 웹에서 붙이려면 `frontend/.env.local` 에 `VITE_BFF_URL=http://localhost:8788`.
+| 명령 | 뜨는 것 | 데이터 | 용도 |
+|---|---|---|---|
+| `npm run dev` | 모의 BFF `:8787` + 웹 `:5173` | 도시 id 로 고정된 가짜 날씨 | **QA·디자인 기본 모드.** 키 없음, 오프라인 가능, 시나리오 강제 |
+| `npm run dev:bff` | 실 BFF `:8788` + 웹 `:5173` | 기상청·천문연·Open-Meteo 실데이터 | 실제 값으로 색·라벨·배지 확인 |
+| `npm run dev:live` | 웹만 `:5173` | 브라우저가 Open-Meteo 직접 호출 | BFF 없이 빠르게 화면만 볼 때(비상업·개발 전용) |
+| `npm run mock` / `npm run bff` | BFF 만 | — | 앱(iOS)에서 붙을 때 |
+| `npm run docker` | 모의 BFF + 웹 | 모의 | 같은 스택을 컨테이너로 |
 
-`dev` 는 `http://localhost:5173`. GPS 는 localhost 에서 동작하며, 거부하면 "기본 도시" 배지와 함께 서울이 보인다.
+`npm run bff` 는 키가 있으면 기상청, 없으면 전 도시 Open-Meteo 로 답한다(`source` 필드와 "대체 데이터" 배지로 구분된다).
+
+GPS 는 localhost 에서 동작하며, 거부하면 "기본 도시" 배지와 함께 서울이 보인다.
+
+## 1-1. iOS 앱을 로컬 BFF 에 붙이기
+
+```
+npm run mock                      # 또는 npm run bff
+open app/ios/ColorSense/ColorSense.xcodeproj
+```
+
+스킴 → Run → Arguments 의 환경변수로 바꾼다. 시뮬레이터 실행만 할 때는 이렇게도 된다:
+
+```
+SIMCTL_CHILD_BFF_URL=http://localhost:8788 SIMCTL_CHILD_CITY_ID=KR-PUS \
+  xcrun simctl launch "iPhone 17 Pro" com.ksh.ColorSense
+```
+
+| 변수 | 뜻 |
+|---|---|
+| `BFF_URL` | 기본 `http://localhost:8787`. 실기기는 `http://<맥 IP>:8787` |
+| `CITY_ID` | GPS 를 건너뛰고 그 도시로 — 웹의 `?city=` 와 같은 수단이라 같은 도시로 나란히 놓고 색을 대조할 수 있다 |
 
 ## 2. URL 파라미터 (개발 빌드·모의 BFF)
 
@@ -27,7 +50,9 @@ Node 20 이상. `cd frontend && npm install` 한 번.
 
 ## 3. 검증 명령
 
-- `npm test` — 기상청 매핑 테이블 26건, 컬러 골든 회귀(±1) 154건, 라벨(D3), 카탈로그 정합성 (node:test, 의존성 없음)
+- `npm test` — 웹 37건(기상청 매핑 26 · 컬러 골든 ±1 154 · 라벨 · 카탈로그) + `packages/core` 웹·BFF 구현 동치 4건 + BFF 20건(발표 시각 규칙, 실 응답 픽스처 조립, 계약 스키마, 라우트)
+- `npm run test:ios` — iOS 골든 154건(시뮬레이터 필요). 기기를 바꾸려면 `IOS_DEVICE="iPhone 16 Pro" npm run test:ios`
+- `npm run test:all` — 위 둘을 한 번에
 - `npm run check` — 테스트 + 빌드 한 번에 (CI 와 동일)
 - `npm run golden` — 컬러 엔진을 바꿨을 때 `spec/color-engine.json` 재생성. 커밋에 포함해야 CI 를 통과한다.
 - `npm run smoke` — 기상청·에어코리아 실제 응답 확인. `KMA_KEY=… AIR_KEY=… npm run smoke -- KR-YSU KR-MPK` 처럼 도시 지정 가능. 통과한 도시는 카탈로그에서 `verify:true` 제거.
@@ -51,9 +76,10 @@ Node 20 이상. `cd frontend && npm install` 한 번.
 `cd infra/docker && docker compose up` → 모의 BFF(8787) + 프론트(5173). 앱 팀은 `docker build -f infra/docker/Dockerfile.mock-bff -t colorsense-mock-bff . && docker run -p 8787:8787 colorsense-mock-bff` 로 모의 BFF 만 띄울 수 있다.
 
 ## 7. 앱(iOS·Android)
-엔진 이식본과 골든 테스트는 `app/ios`, `app/android`에 있다. 프로젝트 생성 후 `frontend/spec/color-engine.json`을 테스트 리소스로 복사하고 골든 테스트를 먼저 통과시킨다. 실기기는 모의 BFF에 `http://<맥 IP>:8787`로 붙는다(`npm run mock`). 자세한 것은 `app/README.md`.
+iOS 는 `app/ios/ColorSense/ColorSense.xcodeproj` 에 프로젝트가 있고 홈 화면까지 동작한다 — 실행·환경변수는 위 1-1 과 `app/ios/README.md`. Android 는 아직 골격만 있다(`app/android`).
+`frontend/spec/color-engine.json` 과 `database/catalog.json` 은 앱 번들 안에 사본으로 들어가 있으므로, 원본이 바뀌면 `app/ios/ColorSense/ColorSenseTests/color-engine.json` · `app/ios/ColorSense/ColorSense/Resources/catalog.json` 도 같이 갱신한다.
 
-## 8. 원클릭 설정 (2026-09-14 추가)
-저장소 루트에서 `npm run setup`(= `bash scripts/setup.sh`)이 도구 확인(node 20+, docker/Xcode/Android Studio는 선택) → `frontend` 의존성 설치 → `frontend/.env.local` 생성 → 테스트·빌드 → 모의 BFF 응답 확인까지 한 번에 한다. 이후 루트에서 `npm run dev`(모의 BFF + 웹), `npm run dev:live`, `npm test`, `npm run check`, `npm run docker`를 쓸 수 있다.
+## 8. 원클릭 설정 (2026-09-14 추가 · 2026-09-16 BFF 포함)
+저장소 루트에서 `npm run setup`(= `bash scripts/setup.sh`)이 도구 확인(node 20+, docker/Xcode/Android Studio는 선택) → `frontend`·`packages/core`·`backend/bff` 의존성 설치와 BFF 빌드 → `frontend/.env.local` 생성 → 테스트·빌드 → 모의 BFF 응답 확인까지 한 번에 한다.
 VS Code는 `.vscode/`에 실행 구성(Web + Mock BFF 복합 디버그), 작업, 추천 확장이 들어 있다. Node 버전은 `.nvmrc`(22), 코드 스타일은 `.editorconfig`, 루트 `.gitignore` 준비됨(`git init`은 팀 결정 후).
 `VITE_CACHE_DIR=/tmp/vite-cs npm run dev` 로 Vite 의존성 캐시 위치를 바꿀 수 있다(파일 삭제가 제한된 환경).

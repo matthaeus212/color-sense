@@ -26,10 +26,12 @@
 
 ## 자주 쓰는 명령 (루트에서)
 
-- `npm run setup` — 최초 1회 환경 세팅
+- `npm run setup` — 최초 1회 환경 세팅(웹·`packages/core`·`backend/bff`)
 - `npm run dev` — 웹 + 모의 BFF (QA·디자인 기본 모드)
+- `npm run dev:bff` — 웹 + 실 BFF(기상청·천문연·Open-Meteo). 키는 `backend/.env.local`
 - `npm run dev:live` — 웹만, 로컬 Open-Meteo 어댑터
-- `npm test` / `npm run check` — 테스트 / 테스트+빌드(CI와 동일)
+- `npm test` / `npm run test:ios` / `npm run test:all` — Node / iOS 골든 / 둘 다
+- `npm run check` — 테스트+빌드(CI와 동일)
 - `npm run smoke` — 실 API(기상청·에어코리아) 확인, 키 필요
 - `npm run docker` — 로컬 Docker 스택
 
