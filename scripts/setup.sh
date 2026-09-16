@@ -18,6 +18,10 @@ command -v xcodebuild >/dev/null && ok "Xcode $(xcodebuild -version 2>/dev/null 
 echo "2) 프론트 의존성 설치"
 ( cd frontend && npm install --no-audit --no-fund --loglevel=error ) && ok "frontend/node_modules"
 
+echo "2-1) BFF 의존성 설치 (packages/core 포함)"
+( cd packages/core && npm install --no-audit --no-fund --loglevel=error ) && ok "packages/core"
+( cd backend/bff && npm install --no-audit --no-fund --loglevel=error && npm run build --silent ) && ok "backend/bff (빌드까지)"
+
 echo "3) 환경 파일"
 if [ ! -f frontend/.env.local ]; then
   # 기본은 비워 두어 dev 는 Open-Meteo 직접 호출, dev:mock 은 스크립트가 VITE_BFF_URL 을 주입
@@ -38,6 +42,7 @@ echo
 echo "다음 명령"
 echo "  npm run dev        # 모의 BFF + 웹 (기본)  → http://localhost:5173/?city=KR-PUS&scenario=stale"
 echo "  npm run dev:live   # Open-Meteo 직접 호출 (실제 날씨, 개발 전용)"
+echo "  npm run bff        # 실 BFF (기상청·Open-Meteo). 키는 backend/.env.local"
 echo "  npm test · npm run check · npm run golden · npm run smoke"
 echo "  npm run docker     # 같은 스택을 Docker 로"
 echo "  앱: app/ios/README.md · app/android/README.md"

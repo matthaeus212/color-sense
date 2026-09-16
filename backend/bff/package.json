@@ -1,0 +1,26 @@
+{
+  "name": "@colorsense/bff",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "ColorSense BFF — 기상청·에어코리아·천문연·Open-Meteo를 CityWeather 계약으로 정규화한다.",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "build": "npm --prefix ../../packages/core run build && tsc -p tsconfig.json",
+    "dev": "tsx watch src/server.ts",
+    "start": "node dist/server.js",
+    "test": "npm run build && node --test tests/*.test.mjs",
+    "live": "npm run build && node dist/server.js"
+  },
+  "dependencies": {
+    "@colorsense/core": "file:../../packages/core",
+    "@hono/node-server": "^1.13.7",
+    "hono": "^4.6.14",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}

@@ -4,18 +4,21 @@
 
 ## 지금 당장 확인할 것
 
-- [ ] **[Theo]** 공공데이터포털 활용신청 4건(기상청 단기·중기, 에어코리아, 천문연) 승인 상태 확인 — 전체 로드맵의 유일한 외부 대기 항목
+- [ ] **[Mateus]** 에어코리아 활용신청 승인 상태 확인 — 남은 유일한 외부 대기 항목
 - [ ] **[Mateus]** 스토어 공개 여부 최종 결정 — 남은 마지막 정책 결정
 - [ ] Phase 1의 병렬 작업 착수 지시
 
 ## Phase 0 — 외부 승인 대기 (최상위 블로커)
 
-- [ ] **[Theo]** 공공데이터포털 활용신청 4건 상태 확인 · 재촉
+- [x] **[Theo]** 공공데이터포털 활용신청 상태 확인 (2026-09-16, 실 호출로 검증)
+  - 기상청 초단기실황·초단기예보·단기예보·중기예보 — 정상
+  - 천문연 출몰시각 — 정상
+  - 에어코리아 대기오염정보 — `NO_OPENAPI_SERVICE_ERROR`(미승인 추정). 대기질만 `unavailable` 로 나가고 날씨·색은 영향 없음
 
 ## Phase 1 — 지금 바로, 블로커 없이 병렬 착수
 
 - [ ] **[Mateus]** 스토어 공개 여부 최종 결정
-- [ ] **[Theo]** 실제 BFF 서버(Node + Hono) 구현 착수
+- [x] **[Theo]** 실제 BFF 서버(Node + Hono) 구현 착수 — `backend/bff`, `packages/core`. 라우트 3개 + 기상청/Open-Meteo 폴백까지 실 데이터로 동작
 - [ ] **[Mark]** AWS 인프라 스캐폴딩(CDK) 착수
 - [ ] **[Cecilia]** 커스텀 날씨 심볼 세트 제작 (약 2일)
 - [ ] **[Cecilia]** 다중 도시 · 검색 · 즐겨찾기 와이어프레임
@@ -29,8 +32,8 @@
 
 ## Phase 3 — 키 발급 완료 후에만 가능
 
-- [ ] **[Theo·Joy]** `npm run smoke` → verify 도시 확정, `data/catalog.json`에서 `verify:true` 제거
-- [ ] **[Theo]** 실 데이터 기반 BFF로 전환, 발표 시각 기준 수집 스케줄 가동
+- [ ] **[Theo·Joy]** `npm run smoke` → verify 도시 확정, `database/catalog.json`에서 `verify:true` 제거 — 기상청 격자·중기 regId 는 4개 도시 모두 OK, 에어코리아 측정소명만 승인 후 확인 필요
+- [ ] **[Theo]** 발표 시각 기준 수집 스케줄 가동 (지금은 요청 시 수집 + 메모리 캐시)
 - [ ] **[Lisiena]** `.env.local`에 `VITE_BFF_URL` 주입 → `localAdapter` 제거
 - [ ] **[Lily]** 앱을 모의 BFF에서 실 BFF로 전환
 

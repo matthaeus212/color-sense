@@ -21,8 +21,8 @@ for (const c of cat.cities.filter((c) => c.source === 'kma' && (!only.length || 
   const ta = await j(`https://apis.data.go.kr/1360000/MidFcstInfoService/getMidTa?serviceKey=${encodeURIComponent(KMA)}&dataType=JSON&numOfRows=10&pageNo=1&regId=${c.kma.regTemp}&tmFc=${tmFc}`)
   res.midTa = okKma(ta) && ta.response.body?.items?.item?.length ? 'OK' : (ta?.response?.header?.resultMsg || ta.raw || 'FAIL')
   if (AIR) {
-    const air = await j(`https://apis.data.go.kr/B552584/ArpltnInfrInqireSvc/getMsrstnAcctntRltmMesureDnsty?serviceKey=${encodeURIComponent(AIR)}&returnType=json&numOfRows=1&pageNo=1&stationName=${encodeURIComponent(c.kma.airStation)}&dataTerm=DAILY&ver=1.3`)
-    res.air = air?.response?.body?.items?.length ? 'OK' : (air?.response?.header?.resultMsg || air.raw || 'FAIL')
+    const air = await j(`https://apis.data.go.kr/B552584/ArpltnInfrInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${encodeURIComponent(AIR)}&returnType=json&numOfRows=1&pageNo=1&stationName=${encodeURIComponent(c.kma.airStation)}&dataTerm=DAILY&ver=1.3`)
+    res.air = air?.response?.body?.items?.length ? 'OK' : (air?.response?.header?.resultMsg || air?.OpenAPI_ServiceResponse?.cmmMsgHeader?.returnAuthMsg || air.raw || 'FAIL')
   }
   res.verify = c.kma.verify ? 'verify-pending' : ''
   console.log(JSON.stringify(res))
