@@ -6,9 +6,21 @@
 
 ## 현재 상태
 
-- `ios/ColorSense/Engine/` — 컬러 엔진 이식 대상, `ios/ColorSenseTests/ColorEngineGoldenTests.swift` 골든 테스트 스켈레톤 있음
-- `android/app/src/` — 초기 골격만 있음
-- iOS/Android 모두 완성된 프로젝트 파일(.xcodeproj, gradle 전체 세팅)은 아직 없음 — 가장 먼저 할 일
+- **iOS** — `ios/ColorSense/ColorSense.xcodeproj` 생성 완료. 컬러 엔진 이식 + 골든 154건 통과, 홈 화면 1장 동작
+  - 실행: Xcode 에서 `ColorSense` 스킴, 또는 `xcodebuild test -scheme ColorSense -destination 'platform=iOS Simulator,name=iPhone 17 Pro'`
+  - BFF 주소·도시는 환경변수로 바꾼다 — `BFF_URL`(기본 `http://localhost:8787` 모의 BFF), `CITY_ID`(웹의 `?city=` 와 같은 QA 수단)
+  - 웹과 색 대조를 실제 렌더링 픽셀로 확인함(6개 스톱 전부 ±1 이내)
+- **Android** — `android/app/src/` 초기 골격만. 프로젝트 생성이 다음 차례
+
+### iOS 구조
+
+| 경로 | 역할 |
+|---|---|
+| `ColorSense/Engine/` | 컬러 엔진·공통 모델 (웹 `color.js`·`model.js` 이식) |
+| `ColorSense/Model/` | `CityWeather`(BFF 계약), `Catalog`(번들 도시 목록·최근접 탐색) |
+| `ColorSense/Data/` | `BFFClient`, `LocationProvider`, `WeatherStore`(상태·배지·재요청) |
+| `ColorSense/UI/` | `HomeView`, `Labels`(기상청 용어 ko/en) |
+| `ColorSense/Resources/catalog.json` | `database/catalog.json` 의 번들 사본 — 카탈로그가 바뀌면 같이 갱신 |
 
 ## 지켜야 할 것
 
@@ -30,6 +42,7 @@
 
 ## 다음 할 일 (`../docs/roadmap.md` 참고)
 
-1. iOS/Android 프로젝트 생성부터 (완성된 프로젝트 파일 없음)
-2. 컬러 엔진 이식 → 골든 테스트 통과
-3. 모의 BFF로 홈 화면 1장 완성 → 웹과 색 대조
+1. iOS 상세 시트 — 시스템 시트 `.presentationDetents([.fraction(0.78), .large])`, 시간별 24칸·주간 7행. 도크의 ⌃ 버튼은 이 시트가 생길 때 함께 붙인다(지금은 위치 칩만 있다)
+2. iOS 설정(Form) — 언어·컬러 테스트(`#if DEBUG`)
+3. Android 프로젝트 생성 → 컬러 엔진 이식 → 골든 테스트
+4. Cecilia 의 커스텀 심볼 세트가 나오면 `Labels.symbol` 의 SF Symbols 매핑을 교체

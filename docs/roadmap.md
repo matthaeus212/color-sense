@@ -22,11 +22,14 @@
 - [ ] **[Mark]** AWS 인프라 스캐폴딩(CDK) 착수
 - [ ] **[Cecilia]** 커스텀 날씨 심볼 세트 제작 (약 2일)
 - [ ] **[Cecilia]** 다중 도시 · 검색 · 즐겨찾기 와이어프레임
-- [ ] **[Lily]** iOS · Android 프로젝트 생성
+- [x] **[Lily]** iOS 프로젝트 생성 — `app/ios/ColorSense/ColorSense.xcodeproj`
+- [ ] **[Lily]** Android 프로젝트 생성
 
 ## Phase 2 — Phase 1 산출물이 있어야 시작
 
-- [ ] **[Lily]** 컬러 엔진 Swift/Kotlin 이식 (선행: 프로젝트 생성) — 골든 154건 대조
+- [x] **[Lily]** 컬러 엔진 Swift 이식 — 골든 154건 통과, 홈 화면 실제 렌더링 픽셀도 웹과 ±1 이내
+- [ ] **[Lily]** 컬러 엔진 Kotlin 이식 (선행: Android 프로젝트 생성) — 골든 154건 대조
+- [ ] **[Lily]** iOS 상세 시트·설정 화면
 - [ ] **[Lisiena]** 도시 검색 · 즐겨찾기 UI 구현 (선행: Cecilia 와이어프레임)
 - [ ] **[Mark]** BFF를 인프라에 연결 · 배포 (선행: Theo BFF 골격)
 
