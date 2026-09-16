@@ -76,9 +76,16 @@ extension CityWeather {
     var nextUpdateAtDate: Date? { parseContractTime(nextUpdateAt, utcOffsetSec: utcOffsetSec) }
 }
 
-/// 계약의 시각 문자열을 Date 로. 오프셋이 붙은 형태가 기본이고,
-/// 모의 BFF 처럼 오프셋 없이 오는 값은 그 도시의 오프셋으로 해석한다.
+/// 계약의 시각 문자열을 Date 로. 세 가지 형태를 모두 받는다:
+///   2026-09-16T11:00:00+09:00   실 BFF
+///   2026-09-16T06:03:23.517Z    모의 BFF (밀리초 포함)
+///   2026-09-16T06:12:00         오프셋 없음 → 그 도시의 오프셋으로 읽는다
+/// 파싱에 실패하면 dataState 가 delayed 로 떨어져 멀쩡한 데이터에 "오래된 데이터" 배지가 붙는다.
 func parseContractTime(_ text: String, utcOffsetSec: Int) -> Date? {
+    let withFraction = ISO8601DateFormatter()
+    withFraction.formatOptions = [.withInternetDateTime, .withFractionalSeconds]
+    if let d = withFraction.date(from: text) { return d }
+
     let iso = ISO8601DateFormatter()
     iso.formatOptions = [.withInternetDateTime]
     if let d = iso.date(from: text) { return d }
