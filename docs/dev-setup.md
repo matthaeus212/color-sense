@@ -13,6 +13,8 @@ Node 20 이상. `cd frontend && npm install` 한 번.
 | `npm run dev:mock` | 모의 BFF(`localhost:8787`) — 실제 계약과 같은 CityWeather | **QA·디자인 기본 모드.** 키 없음, 오프라인 가능, 시나리오 강제 가능 |
 | `npm run build && npm run preview` | 빌드 결과 | 배포 전 확인 (`VITE_BFF_URL` 을 `.env.local` 에 두면 BFF 사용) |
 
+루트에서 `npm run bff` 를 쓰면 실제 BFF(`backend/bff`)가 `http://localhost:8788` 에 뜬다. 키(`backend/.env.local`)가 있으면 기상청·천문연 실데이터, 없으면 전 도시를 Open-Meteo 로 응답한다. 웹에서 붙이려면 `frontend/.env.local` 에 `VITE_BFF_URL=http://localhost:8788`.
+
 `dev` 는 `http://localhost:5173`. GPS 는 localhost 에서 동작하며, 거부하면 "기본 도시" 배지와 함께 서울이 보인다.
 
 ## 2. URL 파라미터 (개발 빌드·모의 BFF)

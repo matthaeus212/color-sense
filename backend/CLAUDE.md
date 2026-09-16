@@ -8,7 +8,29 @@ API 계약, 인증, 비즈니스 로직, DB 연동. `database/`도 Theo 소유(�
 
 - `api-contract.md` — CityWeather 계약 정의 완료
 - `mock-bff/server.mjs` — 모의 BFF(실 계약과 동일 스키마, 시나리오 지원: `stale`/`delayed`/`fallback`/`error`/`slow`)
-- 실제 BFF(Node 22 + TypeScript + Hono + Zod)는 아직 미구현 — 키 발급을 기다릴 필요 없이 지금 골격 작업 시작 가능
+- `bff/` — 실제 BFF(TypeScript + Hono + Zod) 골격 동작. 기상청·천문연·Open-Meteo 실 응답으로 확인함
+  - 루트에서 `npm run bff`(빌드 후 실행) · `npm run bff:dev`(watch) → `http://localhost:8788`
+  - 키는 `backend/.env.local`(git 제외). 키가 없으면 모든 도시를 Open-Meteo 로 응답한다
+- `../packages/core` — 공통 모델·기상청 매핑의 TypeScript 원본. 웹(`frontend/src/lib`)과의 동치는 `packages/core/tests/parity.test.mjs` 가 지킨다
+
+### BFF 구조
+
+| 파일 | 역할 |
+|---|---|
+| `bff/src/app.ts` | 라우트 3개 + `/health`, 입력 검증, CORS |
+| `bff/src/service.ts` | 캐시 → 소스 호출 → 폴백 → 계약 검증 순서의 오케스트레이션 |
+| `bff/src/sources/` | 기상청 4종 · 에어코리아 · 천문연 · Open-Meteo 호출 |
+| `bff/src/build/` | 원본 → `CityWeather` 조립 (`kmaCity.ts`, `openMeteoCity.ts`) |
+| `bff/src/contract.ts` | Zod 계약. 응답 직전에 검증해서 깨진 응답이 화면에 도달하지 않게 한다 |
+| `bff/src/time.ts` | 기상청 발표 시각 계산(초단기 :40/:30, 단기 8회, 중기 06·18시) |
+
+### 키 상태 (2026-09-16 실 호출로 확인)
+
+| 서비스 | 상태 |
+|---|---|
+| 기상청 단기·초단기·중기예보 | 정상 |
+| 천문연 출몰시각 | 정상 |
+| 에어코리아 대기오염정보 | `NO_OPENAPI_SERVICE_ERROR` — 활용신청 미승인으로 보임. 대기질은 `kind:"unavailable"` 로 내려간다 |
 
 ## 계약 요약
 
@@ -28,6 +50,8 @@ API 계약, 인증, 비즈니스 로직, DB 연동. `database/`도 Theo 소유(�
 
 ## 다음 할 일 (`docs/roadmap.md` 참고)
 
-1. (최우선, 외부 대기) 공공데이터포털 활용신청 4건 상태 확인 — 기상청 단기·중기예보, 에어코리아, 천문연
-2. 실제 BFF 골격 구현 착수 — `packages/core`(model·kma·color) 공유 패키지 분리부터
-3. 키 발급 후 `KMA_KEY=… AIR_KEY=… npm run smoke -- <cityId>` → verify 도시 확정 → 실 데이터 전환
+1. (외부 대기) 에어코리아 활용신청 승인 — 승인되면 `airkorea.ts` 는 그대로 두고 키만 넣으면 `kind:"observed"` 로 바뀐다
+2. 캐시를 DynamoDB(TTL 24h)로 — 지금은 프로세스 메모리(`cache.ts`)라 Lambda 인스턴스마다 따로 논다. Mark의 스택과 함께
+3. 발표 시각 기준 수집 스케줄(EventBridge) — 지금은 요청이 올 때 채우는 방식
+4. `verify:true` 4개 도시(`KR-YSU`·`KR-MPK`·`KR-ADG`·`KR-HSG`) — 기상청 격자·중기 regId 는 확인됨. 에어코리아 측정소명은 승인 후 확인하고 플래그 제거
+5. 특보(`warnings`)·시정(`VIS`) 연동 — `fromKma` 는 이미 받지만 수집원이 아직 없다(storm/fog 정확도)
