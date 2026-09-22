@@ -19,6 +19,10 @@ Lambda + EventBridge Scheduler + API GW HTTP + DynamoDB(TTL 24h) + CloudFront+S3
 - 쿼터 소진 80%에서 알림, 100%에서 수집 중단 → 자정 자동 재개
 - 소스별(기상청 / Open-Meteo) 성공률 · 지연을 CloudWatch 지표로, 연속 실패 시 알림
 - CI에 골든 diff 강제 게이트 — 컬러 엔진 스펙이 깨지면 빌드가 실패해야 한다
+  - 게이트는 `npm run golden` 을 다시 돌려 `spec/color-engine.json` 에 diff 가 없어야 통과한다.
+    생성기는 케이스 내용이 같으면 `generatedAt` 을 그대로 유지한다 — 날짜를 매번 새로 찍으면
+    엔진을 건드리지 않아도 날이 바뀐 다음 실행부터 무조건 실패했다(2026-09-15 ~ 09-22 전부 빨간불).
+    엔진이 실제로 바뀌면 케이스와 함께 날짜도 갱신되므로 게이트는 그대로 작동한다.
 - 모니터링은 CloudWatch + Sentry(무료)만, 별도 분석 SDK는 넣지 않는다
 
 ## 다음 할 일 (`../docs/roadmap.md` 참고)

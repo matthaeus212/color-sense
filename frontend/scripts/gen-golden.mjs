@@ -1,6 +1,6 @@
 // 컬러 엔진 골든 케이스 생성기. spec/golden-cases.json 을 갱신하고 마크다운 표를 stdout 으로 출력한다.
 // 사용: node scripts/gen-golden.mjs > /dev/null  (JSON 갱신)  |  node scripts/gen-golden.mjs --md (표 출력)
-import { writeFileSync } from 'node:fs'
+import { readFileSync, writeFileSync } from 'node:fs'
 import { skyStops, ANCHORS, SKYPOS, BOT } from '../src/lib/color.js'
 import { CTP, wxFrom } from '../src/lib/weather.js'
 
@@ -32,7 +32,24 @@ const spec = {
   presets: Object.fromEntries(Object.entries(CTP).map(([k, v]) => [k, wxFrom(v)])),
   cases,
 }
-writeFileSync(new URL('../spec/color-engine.json', import.meta.url), JSON.stringify(spec, null, 1))
+// 내용이 그대로면 generatedAt 도 그대로 둔다.
+// CI 는 golden 을 다시 돌려 diff 가 없어야 통과하는데, 날짜를 매번 새로 찍으면
+// 엔진을 건드리지 않아도 날이 바뀐 다음 실행부터 무조건 실패한다.
+const specPath = new URL('../spec/color-engine.json', import.meta.url)
+
+function unchangedSince() {
+  try {
+    const prev = JSON.parse(readFileSync(specPath, 'utf8'))
+    const { generatedAt, ...prevRest } = prev
+    const { generatedAt: _next, ...nextRest } = spec
+    return JSON.stringify(prevRest) === JSON.stringify(nextRest) ? generatedAt : null
+  } catch {
+    return null // 파일이 없거나 깨졌으면 새로 찍는다
+  }
+}
+
+spec.generatedAt = unchangedSince() ?? spec.generatedAt
+writeFileSync(specPath, JSON.stringify(spec, null, 1))
 if (process.argv.includes('--md')) {
   const hex = (c) => '#' + c.map((v) => v.toString(16).padStart(2, '0')).join('')
   console.log('| 프리셋 | 주/야 | 온도 | top | … | bottom |\n|---|---|---|---|---|---|')
