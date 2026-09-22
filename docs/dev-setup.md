@@ -55,7 +55,9 @@ SIMCTL_CHILD_BFF_URL=http://localhost:8788 SIMCTL_CHILD_CITY_ID=KR-PUS \
 - `npm run test:all` — 위 둘을 한 번에
 - `npm run check` — 테스트 + 빌드 한 번에 (CI 와 동일)
 - `npm run golden` — 컬러 엔진을 바꿨을 때 `spec/color-engine.json` 재생성. 커밋에 포함해야 CI 를 통과한다.
-- `npm run smoke` — 기상청·에어코리아 실제 응답 확인. `KMA_KEY=… AIR_KEY=… npm run smoke -- KR-YSU KR-MPK` 처럼 도시 지정 가능. 통과한 도시는 카탈로그에서 `verify:true` 제거.
+- `npm run smoke` — **외부 소스 전부**(기상청 초단기실황·단기예보·중기기온, 에어코리아, 천문연, 해외는 Open-Meteo)를 도시별로 확인한다. 키를 넣고 실행한다:
+  `set -a; . backend/.env.local; set +a; npm run smoke` · 도시 지정은 `npm run smoke -- KR-YSU KR-MPK`.
+  빈 응답은 재시도하고, 공공데이터포털 게이트웨이 오류는 코드별로 **우리 코드 문제 / 포털 신청 문제 / 쿼터**로 분류해 알려준다(경로 오타를 "미승인"으로 오진한 적이 있어 넣은 장치). 문제가 있으면 종료 코드 1.
 - 컬러 테스트(설정 ⚙ → 컬러 테스트): 11개 프리셋 × 온도 × 주야를 손으로 확인. `design/golden-cases-and-states.md` 골든 표와 대조.
 
 ## 4. 수동 QA 체크리스트 (Joy)

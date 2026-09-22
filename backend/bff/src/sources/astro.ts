@@ -26,9 +26,14 @@ export async function riseSet(locationKo: string, nowMs: number): Promise<Sun> {
   const url = `${URL_BASE}?${qs({ serviceKey: config.astroKey, locdate, location: locationKo })}`
   try {
     const xml = await getText('astro', url)
-    if (tag(xml, 'resultCode') !== '00') return unavailableSun
+    const code = tag(xml, 'resultCode')
+    if (code !== '00') {
+      console.warn(`[astro] "${locationKo}" resultCode ${code} ${tag(xml, 'resultMsg')}`)
+      return unavailableSun
+    }
     return { sunrise: atKst(tag(xml, 'sunrise'), locdate), sunset: atKst(tag(xml, 'sunset'), locdate) }
-  } catch {
+  } catch (error) {
+    console.warn(`[astro] "${locationKo}" 실패:`, error instanceof Error ? error.message : error)
     return unavailableSun
   }
 }
